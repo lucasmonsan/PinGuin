@@ -1,5 +1,6 @@
 <script lang="ts">
 	import favicon from '$lib/assets/favicon.svg';
+	import Dock from '$lib/components/dock/Dock.svelte';
 	import Map from '$lib/components/map/Map.svelte';
 	import '../app.css';
 
@@ -8,7 +9,9 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
+	<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
 </svelte:head>
 
 <Map />
 {@render children()}
+<Dock />
