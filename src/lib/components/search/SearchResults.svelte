@@ -2,6 +2,7 @@
 	import { fade, slide } from 'svelte/transition';
 	import { searchState } from './search.svelte';
 	import { getPlaceLabel } from '$lib/utils/osm';
+	import { i18n } from '$lib/i18n';
 
 	function normalizeStr(str: string | undefined): string {
 		return str
@@ -32,10 +33,10 @@
 <div transition:fade>
 	{#if searchState.results.length > 0}
 		<div class="results-container shadow" transition:slide={{ axis: 'y' }}>
-			<ul>
-				{#each searchState.results as result}
-					<li>
-						<button onclick={() => searchState.selectResult(result)}>
+			<ul role="listbox">
+				{#each searchState.results as result, index}
+					<li role="option" aria-selected="false">
+						<button onclick={() => searchState.selectResult(result)} aria-label={`${result.properties.name}, ${getPlaceLabel(result.properties)}`}>
 							<div>
 								<strong>{@html highlightMatch(result.properties.name, searchState.query)}</strong>
 								<small>{getPlaceLabel(result.properties)}</small>
@@ -53,7 +54,7 @@
 		</div>
 	{:else if searchState.hasSearched && searchState.results.length === 0 && !searchState.loading}
 		<div class="results-container shadow error" transition:slide={{ axis: 'y' }}>
-			<p>Nenhum local encontrado para "<strong>{searchState.lastSearchedQuery}</strong>"</p>
+			<p>{i18n.t.search.noResults} "<strong>{searchState.lastSearchedQuery}</strong>"</p>
 		</div>
 	{/if}
 </div>

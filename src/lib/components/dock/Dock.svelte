@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { searchState } from '$lib/components/search/search.svelte';
 	import { mapState } from '$lib/components/map/map.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
@@ -7,6 +7,7 @@
 	import SearchResults from '$lib/components/search/SearchResults.svelte';
 	import GPSIcon from '$lib/icons/GPSIcon.svelte';
 	import ProfileIcon from '$lib/icons/ProfileIcon.svelte';
+	import { i18n } from '$lib/i18n';
 
 	let showHints = $derived(searchState.focused && searchState.results.length === 0 && !searchState.hasSearched);
 	let showResults = $derived(searchState.results.length > 0 || searchState.hasSearched);
@@ -20,11 +21,11 @@
 	{/if}
 
 	<nav>
-		<Button variant="icon" border="out">
+		<Button variant="icon" border="out" aria-label={i18n.t.buttons.profile}>
 			<ProfileIcon />
 		</Button>
 		<SearchBar />
-		<Button variant="icon" border="out" onclick={() => mapState.locateUser()}>
+		<Button variant="icon" border="out" onclick={() => mapState.locateUser()} aria-label={i18n.t.buttons.locate}>
 			<GPSIcon />
 		</Button>
 	</nav>

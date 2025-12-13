@@ -4,6 +4,7 @@
 	import LoadingIcon from '$lib/icons/LoadingIcon.svelte';
 	import Button from '../ui/Button.svelte';
 	import { searchState } from './search.svelte';
+	import { i18n } from '$lib/i18n';
 
 	let inputElement: HTMLInputElement | undefined = $state();
 
@@ -27,14 +28,20 @@
 	<input
 		bind:this={inputElement}
 		type="text"
-		placeholder="Pesquise no LocaLista..."
+		placeholder={i18n.t.search.placeholder}
 		bind:value={searchState.query}
 		oninput={(e) => searchState.setQuery(e.currentTarget.value)}
 		onfocus={() => (searchState.focused = true)}
 		onblur={() => (searchState.focused = false)}
+		aria-label={i18n.t.buttons.search}
 	/>
 
-	<Button variant="ghost" onclick={() => searchState.query !== '' && handleClear()} type="button">
+	<Button
+		variant="ghost"
+		onclick={() => searchState.query !== '' && handleClear()}
+		type="button"
+		aria-label={searchState.query === '' ? i18n.t.buttons.search : i18n.t.buttons.clear}
+	>
 		{#if searchState.loading}
 			<LoadingIcon />
 		{:else if searchState.query === ''}

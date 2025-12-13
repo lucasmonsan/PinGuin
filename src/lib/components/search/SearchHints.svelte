@@ -1,17 +1,13 @@
-<script>
+<script lang="ts">
 	import { fade, slide } from 'svelte/transition';
-	const hints = [
-		'Busque pela rua, bairro, cidade, ponto turístico, empresa ou nome de comércio.',
-		'O resultado desejado não apareceu? Tente ser mais específico.',
-		'Rua sem numeração? Só adicionar na sua análise.'
-	];
+	import { i18n } from '$lib/i18n';
 </script>
 
 <div class="shadow" transition:fade={{ duration: 250 }}>
 	<div transition:slide={{ axis: 'y' }}>
-		<p>💡 Dicas de pesquisa:</p>
+		<p>{i18n.t.search.hints.title}</p>
 		<ul>
-			{#each hints as hint}
+			{#each i18n.t.search.hints.items as hint}
 				<li>{hint}</li>
 			{/each}
 		</ul>
