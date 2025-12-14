@@ -1,3 +1,5 @@
+// $lib/i18n/locales/pt-BR.ts
+
 import type { I18nDictionary } from '../types';
 
 export const ptBR: I18nDictionary = {
@@ -18,6 +20,22 @@ export const ptBR: I18nDictionary = {
     search: 'Pesquisar',
     locate: 'Minha localização',
     profile: 'Perfil'
+  },
+  profile: {
+    theme: {
+      title: 'Tema',
+      light: 'Claro',
+      auto: 'Automático',
+      dark: 'Escuro'
+    },
+    language: {
+      title: 'Idioma'
+    },
+    favorites: 'Favoritos',
+    reviews: 'Minhas Avaliações',
+    about: 'Sobre',
+    login: 'Entrar',
+    logout: 'Sair'
   },
   errors: {
     searchFailed: 'Não foi possível buscar. Tente novamente.',

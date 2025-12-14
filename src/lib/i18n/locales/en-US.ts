@@ -1,3 +1,5 @@
+// $lib/i18n/locales/en-US.ts
+
 import type { I18nDictionary } from '../types';
 
 export const enUS: I18nDictionary = {
@@ -18,6 +20,22 @@ export const enUS: I18nDictionary = {
     search: 'Search',
     locate: 'My location',
     profile: 'Profile'
+  },
+  profile: {
+    theme: {
+      title: 'Theme',
+      light: 'Light',
+      auto: 'Auto',
+      dark: 'Dark'
+    },
+    language: {
+      title: 'Language'
+    },
+    favorites: 'Favorites',
+    reviews: 'My Reviews',
+    about: 'About',
+    login: 'Sign In',
+    logout: 'Sign Out'
   },
   errors: {
     searchFailed: 'Unable to search. Please try again.',

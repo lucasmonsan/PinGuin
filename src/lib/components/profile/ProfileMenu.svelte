@@ -10,10 +10,15 @@
 
 	let { isOpen, onClose }: Props = $props();
 
+	let themeExpanded = $state(false);
+	let languageExpanded = $state(false);
+	let currentTheme = $state<string>('auto');
+	let isAuthenticated = $state(false);
+
 	const themes = [
-		{ value: 'light', label: '☀️ Light' },
-		{ value: 'auto', label: '💻 Auto' },
-		{ value: 'dark', label: '🌙 Dark' }
+		{ value: 'light', icon: '☀️' },
+		{ value: 'auto', icon: '💻' },
+		{ value: 'dark', icon: '🌙' }
 	];
 
 	const languages: { value: Locale; label: string; flag: string }[] = [
@@ -21,7 +26,15 @@
 		{ value: 'en-US', label: 'English', flag: '🇺🇸' }
 	];
 
-	let currentTheme = $state<string>('auto');
+	function toggleTheme() {
+		themeExpanded = !themeExpanded;
+		if (themeExpanded) languageExpanded = false;
+	}
+
+	function toggleLanguage() {
+		languageExpanded = !languageExpanded;
+		if (languageExpanded) themeExpanded = false;
+	}
 
 	function setTheme(theme: string) {
 		currentTheme = theme;
@@ -32,10 +45,23 @@
 		} else {
 			document.documentElement.removeAttribute('data-theme');
 		}
+		themeExpanded = false;
 	}
 
 	function setLanguage(locale: Locale) {
 		i18n.setLocale(locale);
+		languageExpanded = false;
+	}
+
+	function getThemeLabel(theme: string): string {
+		if (theme === 'light') return i18n.t.profile.theme.light;
+		if (theme === 'dark') return i18n.t.profile.theme.dark;
+		return i18n.t.profile.theme.auto;
+	}
+
+	function getLanguageLabel(locale: Locale): string {
+		const lang = languages.find((l) => l.value === locale);
+		return lang ? lang.label : 'Português';
 	}
 
 	function handleClickOutside(e: MouseEvent) {
@@ -59,32 +85,67 @@
 {#if isOpen}
 	<div class="profile-menu shadow" transition:slide={{ axis: 'y' }}>
 		<section>
-			<h6>🌙 Tema</h6>
-			<div class="options">
-				{#each themes as theme}
-					<button class="option" class:active={currentTheme === theme.value} onclick={() => setTheme(theme.value)}>
-						{theme.label}
-					</button>
-				{/each}
-			</div>
+			<button class="collapsible" onclick={toggleTheme}>
+				<span>
+					🌙 {i18n.t.profile.theme.title}: <strong>{getThemeLabel(currentTheme)}</strong>
+				</span>
+				<span class="arrow" class:expanded={themeExpanded}>▼</span>
+			</button>
+
+			{#if themeExpanded}
+				<div class="options" transition:slide={{ axis: 'y', duration: 200 }}>
+					{#each themes as theme}
+						<button class="option" class:active={currentTheme === theme.value} onclick={() => setTheme(theme.value)}>
+							{theme.icon}
+							{getThemeLabel(theme.value)}
+						</button>
+					{/each}
+				</div>
+			{/if}
 		</section>
 
 		<section>
-			<h6>🌐 Idioma</h6>
-			<div class="options">
-				{#each languages as lang}
-					<button class="option" class:active={i18n.locale === lang.value} onclick={() => setLanguage(lang.value)}>
-						{lang.flag}
-						{lang.label}
-					</button>
-				{/each}
-			</div>
+			<button class="collapsible" onclick={toggleLanguage}>
+				<span>
+					🌐 {i18n.t.profile.language.title}: <strong>{getLanguageLabel(i18n.locale)}</strong>
+				</span>
+				<span class="arrow" class:expanded={languageExpanded}>▼</span>
+			</button>
+
+			{#if languageExpanded}
+				<div class="options" transition:slide={{ axis: 'y', duration: 200 }}>
+					{#each languages as lang}
+						<button class="option" class:active={i18n.locale === lang.value} onclick={() => setLanguage(lang.value)}>
+							{lang.flag}
+							{lang.label}
+						</button>
+					{/each}
+				</div>
+			{/if}
 		</section>
 
 		<div class="separator"></div>
 
-		<section>
-			<a href="https://github.com/lucasmonsan/localista" target="_blank" rel="noopener noreferrer"> ℹ️ Sobre </a>
+		<section class="links">
+			<a href="/favorites">⭐ {i18n.t.profile.favorites}</a>
+			<a href="/reviews">📝 {i18n.t.profile.reviews}</a>
+			<a href="https://github.com/lucasmonsan/localista" target="_blank" rel="noopener noreferrer">
+				ℹ️ {i18n.t.profile.about}
+			</a>
+		</section>
+
+		<div class="separator"></div>
+
+		<section class="action">
+			{#if isAuthenticated}
+				<button class="logout" onclick={() => console.log('logout')}>
+					🚪 {i18n.t.profile.logout}
+				</button>
+			{:else}
+				<button class="login" onclick={() => console.log('login')}>
+					🔑 {i18n.t.profile.login}
+				</button>
+			{/if}
 		</section>
 	</div>
 {/if}
@@ -108,18 +169,45 @@
 	section {
 		display: flex;
 		flex-direction: column;
-		gap: var(--xxs);
+		gap: var(--xxxs);
 	}
 
-	h6 {
-		padding: 0 var(--xxs);
+	.collapsible {
+		width: 100%;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: var(--xxs) var(--xs);
+		background: transparent;
+		border: none;
+		border-radius: var(--radius-in);
+		cursor: pointer;
+		font-size: var(--sm);
+		font-weight: 600;
+		color: var(--text-primary);
+		transition: background var(--fast);
+		text-align: left;
+
+		&:hover {
+			background: var(--bg);
+		}
+	}
+
+	.arrow {
+		font-size: var(--xs);
+		transition: transform var(--fast);
 		color: var(--text-secondary);
+
+		&.expanded {
+			transform: rotate(180deg);
+		}
 	}
 
 	.options {
 		display: flex;
 		flex-direction: column;
 		gap: var(--xxxs);
+		padding-left: var(--xs);
 	}
 
 	.option {
@@ -131,7 +219,7 @@
 		border-radius: var(--radius-in);
 		cursor: pointer;
 		font-size: var(--sm);
-		font-weight: 600;
+		font-weight: 500;
 		color: var(--text-primary);
 		transition: background var(--fast);
 
@@ -142,6 +230,7 @@
 		&.active {
 			background: var(--brand-primary);
 			color: var(--surface);
+			font-weight: 600;
 		}
 	}
 
@@ -150,7 +239,11 @@
 		background: var(--border);
 	}
 
-	a {
+	.links {
+		gap: var(--xxxs);
+	}
+
+	.links a {
 		display: block;
 		padding: var(--xxs) var(--xs);
 		font-size: var(--sm);
@@ -159,6 +252,40 @@
 		text-decoration: none;
 		border-radius: var(--radius-in);
 		transition: background var(--fast);
+
+		&:hover {
+			background: var(--bg);
+		}
+	}
+
+	.action {
+		margin: 0;
+	}
+
+	.login,
+	.logout {
+		width: 100%;
+		padding: var(--xxs) var(--xs);
+		font-size: var(--sm);
+		font-weight: 600;
+		border: none;
+		border-radius: var(--radius-in);
+		cursor: pointer;
+		transition: all var(--fast);
+	}
+
+	.login {
+		background: var(--brand-primary);
+		color: var(--surface);
+
+		&:hover {
+			background: var(--brand-secondary);
+		}
+	}
+
+	.logout {
+		background: transparent;
+		color: var(--error);
 
 		&:hover {
 			background: var(--bg);
