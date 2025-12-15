@@ -19,28 +19,30 @@
 	button {
 		overflow: hidden;
 		display: flex;
-		min-width: var(--xl, 1.5rem);
-		min-height: var(--xl, 1.5rem);
-		padding: var(--xs, 0.4rem);
+		min-width: var(--xl);
+		min-height: var(--xl);
+		padding: var(--xs);
 		font-weight: 700;
-		box-shadow: var(--shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06));
+		box-shadow: var(--shadow-md);
 		background: var(--surface);
 		color: var(--text-primary);
 		user-select: none;
 		-moz-user-select: none;
 		-webkit-tap-highlight-color: transparent;
+		transition: all var(--fast);
 
 		&.in {
-			border-radius: var(--radius-in, 0.5rem);
+			border-radius: var(--radius-in);
 		}
+
 		&.out {
-			border-radius: var(--radius-out, 1rem);
+			border-radius: var(--radius-out);
 		}
 
 		&.icon {
 			width: 100%;
-			max-width: var(--xxxl, 3rem);
-			max-height: var(--xxxl, 3rem);
+			max-width: var(--xxxl);
+			max-height: var(--xxxl);
 		}
 
 		&.ghost {
@@ -48,6 +50,38 @@
 			background: transparent;
 			box-shadow: none;
 			border-radius: 0;
+		}
+
+		&:hover:not(:disabled):not(.ghost) {
+			transform: translateY(-2px);
+			box-shadow: var(--shadow-lg);
+			background: color-mix(in srgb, var(--brand-primary) 8%, var(--surface));
+		}
+
+		&:active:not(:disabled):not(.ghost) {
+			transform: translateY(0);
+			box-shadow: var(--shadow-sm);
+			background: var(--surface);
+		}
+
+		&.ghost:hover:not(:disabled) {
+			background: var(--bg);
+			border-radius: var(--radius-in);
+		}
+
+		&.icon:hover:not(:disabled) {
+			background: color-mix(in srgb, var(--brand-primary) 12%, var(--surface));
+			transform: translateY(-2px);
+			box-shadow: var(--shadow-lg);
+		}
+
+		&.icon:active:not(:disabled) {
+			transform: scale(0.95);
+		}
+
+		&:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
 		}
 	}
 </style>
