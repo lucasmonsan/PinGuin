@@ -5,31 +5,21 @@
 	import { MAP_CONFIG } from '$lib/constants/config';
 
 	let mapElement: HTMLElement;
-	let currentTileLayer: any;
-
-	function getTileUrl(theme: string): string {
-		if (theme === 'auto') {
-			const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-			return prefersDark ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png' : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
-		}
-
-		if (theme === 'dark') {
-			return 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png';
-		}
-		return 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
-	}
+	let lightTiles: any = null;
+	let darkTiles: any = null;
+	let currentTileLayer: any = null;
 
 	$effect(() => {
 		const theme = themeState.current;
 		const map = mapState.getMap();
-		const L = (window as any).L;
 
-		if (map && L && currentTileLayer) {
+		if (map && lightTiles && darkTiles && currentTileLayer) {
 			map.removeLayer(currentTileLayer);
-			currentTileLayer = L.tileLayer(getTileUrl(theme), {
-				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-				maxZoom: 20
-			}).addTo(map);
+
+			const prefersDark = theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+			currentTileLayer = prefersDark ? darkTiles : lightTiles;
+
+			map.addLayer(currentTileLayer);
 		}
 	});
 
@@ -55,10 +45,19 @@
 				attributionControl: false
 			}).setView(MAP_CONFIG.DEFAULT_CENTER, MAP_CONFIG.DEFAULT_ZOOM);
 
-			currentTileLayer = L.tileLayer(getTileUrl(themeState.current), {
+			lightTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
 				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
 				maxZoom: 20
-			}).addTo(map);
+			});
+
+			darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+				maxZoom: 20
+			});
+
+			const prefersDark = themeState.current === 'dark' || (themeState.current === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+			currentTileLayer = prefersDark ? darkTiles : lightTiles;
+			currentTileLayer.addTo(map);
 
 			mapState.setMap(map, L);
 
@@ -72,6 +71,9 @@
 			resizeObserver?.disconnect();
 			map?.remove();
 			mapState.setMap(null, null);
+			lightTiles = null;
+			darkTiles = null;
+			currentTileLayer = null;
 		};
 	});
 </script>
@@ -85,7 +87,7 @@
 		left: 0;
 		width: 100%;
 		height: 100%;
-		z-index: var(--z-map, 1);
+		z-index: var(--z-map);
 		background-color: var(--bg);
 	}
 </style>
