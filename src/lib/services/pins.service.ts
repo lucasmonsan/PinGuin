@@ -225,40 +225,38 @@ export class PinsService {
 	}
 
 	/**
-	 * Upload pin photo
+	 * Upload pin photo (client-side - sends to API)
 	 */
-	static async uploadPhoto(file: File, pinId: string): Promise<string> {
-		const fileExt = file.name.split('.').pop();
-		const fileName = `${pinId}/${Date.now()}.${fileExt}`;
+	static async uploadPhoto(
+		originalFile: File,
+		thumbnailFile: File,
+		pinId: string
+	): Promise<{ original: string; thumbnail: string }> {
+		const formData = new FormData();
+		formData.append('original', originalFile);
+		formData.append('thumbnail', thumbnailFile);
+		formData.append('pinId', pinId);
 
-		const { data, error } = await supabase.storage
-			.from('pin-photos')
-			.upload(fileName, file, {
-				cacheControl: '3600',
-				upsert: false
-			});
+		const response = await fetch('/api/upload', {
+			method: 'POST',
+			body: formData
+		});
 
-		if (error) throw error;
+		if (!response.ok) {
+			const error = await response.json();
+			throw new Error(error.error || 'Upload failed');
+		}
 
-		const { data: { publicUrl } } = supabase.storage
-			.from('pin-photos')
-			.getPublicUrl(data.path);
-
-		return publicUrl;
+		return await response.json();
 	}
 
 	/**
 	 * Delete pin photo
 	 */
 	static async deletePhoto(photoUrl: string): Promise<void> {
-		const path = photoUrl.split('/pin-photos/')[1];
-		if (!path) return;
-
-		const { error } = await supabase.storage
-			.from('pin-photos')
-			.remove([path]);
-
-		if (error) throw error;
+		// This would need an API endpoint to delete from R2
+		// For now, we'll just handle it server-side when deleting the pin
+		console.log('Delete photo:', photoUrl);
 	}
 }
 

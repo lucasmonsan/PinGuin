@@ -43,8 +43,10 @@
 		"vitest-browser-svelte": "^2.0.1"
 	},
 	"dependencies": {
+		"@aws-sdk/client-s3": "^3.953.0",
 		"@supabase/ssr": "^0.1.0",
 		"@supabase/supabase-js": "^2.87.1",
+		"browser-image-compression": "^2.0.2",
 		"leaflet": "^1.9.4"
 	}
 }
