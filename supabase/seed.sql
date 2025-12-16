@@ -1,9 +1,9 @@
 -- ============================================
--- LocaList Database Seed Data
+-- Map Database Seed Data
 -- ============================================
 
 -- Insert default pin categories
-INSERT INTO localist_pin_categories (name, icon, color) VALUES
+INSERT INTO map_pin_categories (name, icon, color) VALUES
   ('Restaurante', '🍽️', '#FF6B6B'),
   ('Café', '☕', '#8B4513'),
   ('Parque', '🌳', '#4ECDC4'),
