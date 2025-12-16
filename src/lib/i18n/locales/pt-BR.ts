@@ -83,7 +83,8 @@ export const ptBR: I18nDictionary = {
     photoUploaded: 'Foto enviada com sucesso!'
   },
   toast: {
-    close: 'Fechar notificação'
+    close: 'Fechar notificação',
+    info: 'Informação'
   },
   categories: {
     restaurant: 'Restaurante',

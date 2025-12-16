@@ -5,6 +5,7 @@
 	import { CategoriesService } from '$lib/services/categories.service';
 	import { toast } from '$lib/components/toast/toast.svelte';
 	import { i18n } from '$lib/i18n/i18n.svelte';
+	import { processImage, formatFileSize } from '$lib/utils/imageCompression';
 	import { onMount } from 'svelte';
 	import type { PinCategory } from '$lib/types/database.types';
 	import Button from '$lib/components/ui/Button.svelte';
@@ -21,7 +22,7 @@
 	let latitude = $state('');
 	let longitude = $state('');
 	let address = $state('');
-	let photos = $state<string[]>([]);
+	let photos = $state<Array<{ original: string; thumbnail: string }>>([]);
 	let isPublic = $state(true);
 
 	onMount(async () => {
@@ -57,13 +58,26 @@
 					break;
 				}
 
-				const url = await PinsService.uploadPhoto(file, tempPinId);
-				photos = [...photos, url];
+				// Show compression progress
+				const originalSize = formatFileSize(file.size);
+				toast.info(`Comprimindo imagem (${originalSize})...`);
+
+				// Compress image
+				const { original, thumbnail } = await processImage(file);
+				
+				const compressedSize = formatFileSize(original.size);
+				toast.info(`Enviando imagem (${compressedSize})...`);
+
+				// Upload to R2
+				const urls = await PinsService.uploadPhoto(original, thumbnail, tempPinId);
+				photos = [...photos, urls];
+
+				toast.success(`Foto adicionada! ${originalSize} → ${compressedSize}`);
 			}
-			toast.success(i18n.t.success.photoUploaded);
 		} catch (err) {
 			console.error('Error uploading photo:', err);
-			toast.error(i18n.t.errors.uploadPhotoFailed);
+			const errorMessage = err instanceof Error ? err.message : i18n.t.errors.uploadPhotoFailed;
+			toast.error(errorMessage);
 		} finally {
 			uploading = false;
 			input.value = '';
@@ -98,7 +112,7 @@
 				latitude: parseFloat(latitude),
 				longitude: parseFloat(longitude),
 				address: address.trim() || null,
-				photos,
+				photos: photos.map(p => p.original),
 				is_public: isPublic
 			});
 
@@ -199,7 +213,7 @@
 			<div class="photos-grid">
 				{#each photos as photo, index}
 					<div class="photo-item">
-						<img src={photo} alt="Foto do pin {index + 1}" />
+						<img src={photo.thumbnail} alt="Foto do pin {index + 1}" />
 						<button
 							type="button"
 							class="remove-photo"

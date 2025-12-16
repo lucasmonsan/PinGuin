@@ -83,7 +83,8 @@ export const enUS: I18nDictionary = {
     photoUploaded: 'Photo uploaded successfully!'
   },
   toast: {
-    close: 'Close notification'
+    close: 'Close notification',
+    info: 'Information'
   },
   categories: {
     restaurant: 'Restaurant',
