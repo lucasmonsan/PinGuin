@@ -186,7 +186,7 @@
 					{i18n.t.profile.logout}
 				</button>
 		{:else}
-			<a href="https://monsan.duckdns.org/login?redirect=https://map.monsan.duckdns.org" class="login-link">
+			<a href={`https://monsan.duckdns.org/login?redirect=${encodeURIComponent(typeof window !== 'undefined' ? window.location.origin : 'https://map.monsan.duckdns.org')}`} class="login-link">
 				<button class="login">
 					<span class="icon-wrapper small">
 						<KeyIcon />

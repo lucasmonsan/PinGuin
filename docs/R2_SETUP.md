@@ -58,16 +58,19 @@ Após configurar as variáveis:
 ## Troubleshooting
 
 ### Erro 403 Forbidden
+
 - Verifique se o bucket está público
 - Confirme as credenciais da API
 - Verifique as permissões do token
 
 ### Erro 404 Not Found
+
 - Confirme o nome do bucket (`map-pins`)
 - Verifique o `R2_ACCOUNT_ID`
 - Confirme o endpoint público
 
 ### Imagem não carrega
+
 - Verifique o `PUBLIC_R2_PUBLIC_URL`
 - Confirme CORS se necessário
 - Verifique o navegador para erros de rede
@@ -84,4 +87,3 @@ Após configurar as variáveis:
 - ✅ Redimensionamento: 1200x1200px (~100-200 KB)
 - ✅ Thumbnails: 300x300px (~15-25 KB)
 - ✅ Cache: `max-age=31536000, immutable`
-
