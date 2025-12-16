@@ -13,6 +13,15 @@ class AuthState {
 		this.setSession(session);
 
 		if (browser) {
+			// Verifica sessão atual ao iniciar
+			supabase.auth.getSession().then(({ data }) => {
+				if (data.session && data.session !== session) {
+					this.setSession(data.session);
+					invalidate('supabase:auth');
+				}
+			});
+
+			// Escuta mudanças de autenticação
 			supabase.auth.onAuthStateChange((_event, session) => {
 				this.setSession(session);
 				invalidate('supabase:auth');
