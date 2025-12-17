@@ -8,17 +8,39 @@ const locales: Record<Locale, I18nDictionary> = {
   'en-US': enUS
 };
 
+function detectLanguage(): Locale {
+  if (!browser) return 'pt-BR';
+  
+  // 1. Verificar localStorage (preferência do usuário)
+  const saved = localStorage.getItem('locale') as Locale;
+  if (saved && locales[saved]) return saved;
+  
+  // 2. Detectar do navegador
+  const browserLang = navigator.language || navigator.languages?.[0] || 'pt-BR';
+  
+  // 3. Mapear códigos
+  if (browserLang.startsWith('pt')) return 'pt-BR';
+  if (browserLang.startsWith('en')) return 'en-US';
+  
+  // 4. Fallback
+  return 'pt-BR';
+}
+
 class I18n {
   private currentLocale: Locale = $state('pt-BR');
   private initialized = false;
 
-  private ensureInitialized() {
+  init() {
     if (!this.initialized && browser) {
       this.initialized = true;
-      const saved = localStorage.getItem('locale') as Locale;
-      if (saved && locales[saved]) {
-        this.currentLocale = saved;
-      }
+      this.currentLocale = detectLanguage();
+      this.updateHtmlLang();
+    }
+  }
+
+  private ensureInitialized() {
+    if (!this.initialized && browser) {
+      this.init();
     }
   }
 
@@ -32,6 +54,13 @@ class I18n {
     this.currentLocale = locale;
     if (browser) {
       localStorage.setItem('locale', locale);
+      this.updateHtmlLang();
+    }
+  }
+
+  private updateHtmlLang() {
+    if (browser && typeof document !== 'undefined') {
+      document.documentElement.lang = this.currentLocale;
     }
   }
 

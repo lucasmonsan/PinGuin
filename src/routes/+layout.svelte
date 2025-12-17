@@ -7,6 +7,7 @@
 	import { authState } from '$lib/stores/auth.svelte';
 	import { navigationService } from '$lib/services/navigation.service';
 	import { defaultSEO, getSEOForPin } from '$lib/utils/seo';
+	import { i18n } from '$lib/i18n/i18n.svelte';
 	import favicon from '$lib/assets/favicon.svg';
 	import Dock from '$lib/components/dock/Dock.svelte';
 	import Map from '$lib/components/map/Map.svelte';
@@ -67,6 +68,9 @@
 
 	// Geolocalização inicial com timeout inteligente
 	onMount(() => {
+		// Inicializar i18n com detecção automática de idioma
+		i18n.init();
+		
 		// Register Service Worker
 		if ('serviceWorker' in navigator) {
 			navigator.serviceWorker.register('/sw.js').catch((error) => {
