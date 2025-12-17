@@ -123,23 +123,56 @@
 
 	/* GPS Button feedback states */
 	:global(.gps-button[data-locating='true']) {
-		border: 2px solid var(--brand-primary) !important;
-		box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand-primary) 20%, transparent) !important;
+		position: relative;
+		box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-primary) 25%, transparent) !important;
 		animation: gpsPulse 1.5s ease-in-out infinite;
 	}
 
+	:global(.gps-button[data-locating='true']::before) {
+		content: '';
+		position: absolute;
+		inset: -2px;
+		border-radius: inherit;
+		border: 2px solid var(--brand-primary);
+		pointer-events: none;
+		z-index: 1;
+	}
+
 	:global(.gps-button[data-located='true']) {
-		border: 2px solid var(--success) !important;
-		box-shadow: 0 0 0 4px color-mix(in srgb, var(--success) 20%, transparent) !important;
+		position: relative;
+		box-shadow: 0 0 0 3px color-mix(in srgb, var(--success) 25%, transparent) !important;
 		transition: all 0.3s ease;
+	}
+
+	:global(.gps-button[data-located='true']::before) {
+		content: '';
+		position: absolute;
+		inset: -2px;
+		border-radius: inherit;
+		border: 2px solid var(--success);
+		pointer-events: none;
+		z-index: 1;
+		animation: successFade 2s ease-out forwards;
 	}
 
 	@keyframes gpsPulse {
 		0%, 100% {
-			box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand-primary) 20%, transparent);
+			box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-primary) 25%, transparent);
 		}
 		50% {
-			box-shadow: 0 0 0 8px color-mix(in srgb, var(--brand-primary) 10%, transparent);
+			box-shadow: 0 0 0 6px color-mix(in srgb, var(--brand-primary) 15%, transparent);
+		}
+	}
+
+	@keyframes successFade {
+		0% {
+			opacity: 1;
+		}
+		70% {
+			opacity: 1;
+		}
+		100% {
+			opacity: 0;
 		}
 	}
 </style>

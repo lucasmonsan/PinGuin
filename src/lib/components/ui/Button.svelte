@@ -112,6 +112,7 @@
 		&.icon:hover:not(:disabled):not(.invisible) {
 			background: rgba(99, 102, 241, 0.1);
 			transform: scale(1.05);
+			animation: buttonPulse 0.3s ease;
 		}
 
 		&.icon:active:not(:disabled) {
@@ -159,6 +160,18 @@
 			opacity: 0.5;
 			cursor: not-allowed;
 			transform: none !important;
+		}
+	}
+
+	@keyframes buttonPulse {
+		0% {
+			box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+		}
+		70% {
+			box-shadow: 0 0 0 6px rgba(99, 102, 241, 0);
+		}
+		100% {
+			box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
 		}
 	}
 </style>
