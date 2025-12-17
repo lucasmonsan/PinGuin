@@ -216,7 +216,8 @@
 					class:active={isFavorited}
 					onclick={handleToggleFavorite} 
 					disabled={favoriteLoading}
-					aria-label={isFavorited ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+					aria-label={favoriteLoading ? i18n.t.a11y?.loading || 'Processando' : isFavorited ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+					aria-busy={favoriteLoading}
 				>
 					<Star size={20} fill={isFavorited ? 'currentColor' : 'none'} />
 				</button>

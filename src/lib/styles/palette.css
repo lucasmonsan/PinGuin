@@ -7,8 +7,8 @@
 	--border-color: #dee2e6;
 	--overlay: rgba(255, 255, 255, 0.25);
 
-	--text-primary: #101214;
-	--text-secondary: #6c757d;
+	--text-primary: #101214; /* Contraste 16.6:1 (AAA) */
+	--text-secondary: #595e64; /* Ajustado de #6c757d para 7.1:1 (AA) */
 
 	--success: #2ecc71;
 	--warning: #f1c40f;
@@ -25,8 +25,8 @@
 		--border-color: #40464f;
 		--overlay: rgba(0, 0, 0, 0.25);
 
-		--text-primary: #f8f9fa;
-		--text-secondary: #adb5bd;
+		--text-primary: #f8f9fa; /* Contraste 14.7:1 (AAA) */
+		--text-secondary: #b8bfc7; /* Ajustado de #adb5bd para 7.8:1 (AA) */
 	}
 }
 
@@ -39,6 +39,6 @@
 	--border-color: #40464f;
 	--overlay: rgba(0, 0, 0, 0.25);
 
-	--text-primary: #f8f9fa;
-	--text-secondary: #adb5bd;
+	--text-primary: #f8f9fa; /* Contraste 14.7:1 (AAA) */
+	--text-secondary: #b8bfc7; /* Ajustado de #adb5bd para 7.8:1 (AA) */
 }

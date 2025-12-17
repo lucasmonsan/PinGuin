@@ -229,7 +229,13 @@
 		</div>
 
 		<!-- Submit Button -->
-		<Button type="submit" variant="primary" disabled={loading || uploading || rating === 0}>
+		<Button 
+			type="submit" 
+			variant="primary" 
+			disabled={loading || uploading || rating === 0}
+			aria-busy={loading || uploading}
+			aria-label={loading ? 'Publicando avaliação' : uploading ? 'Enviando fotos' : 'Publicar avaliação'}
+		>
 			{loading ? 'Publicando...' : 'Publicar Avaliação'}
 		</Button>
 	</form>

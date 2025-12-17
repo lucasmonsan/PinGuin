@@ -51,7 +51,7 @@
 	data-loading={searchState.loading}
 >
 	{#if searchState.loading}
-		<div class="progress-bar"></div>
+		<div class="progress-bar" role="progressbar" aria-label={i18n.t.a11y?.loading || 'Carregando'} aria-busy="true"></div>
 	{/if}
 
 	<input
@@ -78,10 +78,11 @@
 		onclick={() => searchState.query !== '' && handleClear()}
 		type="button"
 		disabled={searchState.loading}
-		aria-label={searchState.query === '' ? i18n.t.buttons.search : i18n.t.buttons.clear}
+		aria-label={searchState.loading ? i18n.t.a11y?.loading || 'Carregando' : searchState.query === '' ? i18n.t.buttons.search : i18n.t.buttons.clear}
+		aria-busy={searchState.loading}
 	>
 		{#if searchState.loading}
-			<div class="animate-spin" style="display: flex;">
+			<div class="animate-spin" style="display: flex;" aria-hidden="true">
 				<Loader2 size={18} />
 			</div>
 		{:else if searchState.query === ''}
