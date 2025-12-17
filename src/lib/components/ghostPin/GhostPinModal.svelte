@@ -33,6 +33,10 @@
 
 		haptics.medium();
 		ghostPinState.clear();
+		// Limpar marcador visual do mapa
+		import('$lib/components/map/map.svelte').then(({ mapState }) => {
+			mapState.clearGhostPin();
+		});
 		goto(`/pins/new?${params}`);
 	}
 
@@ -45,6 +49,10 @@
 	function handleCancel() {
 		haptics.light();
 		ghostPinState.clear();
+		// Limpar marcador visual do mapa
+		import('$lib/components/map/map.svelte').then(({ mapState }) => {
+			mapState.clearGhostPin();
+		});
 	}
 </script>
 
@@ -65,6 +73,11 @@
 				</div>
 				<h3>Locais próximos encontrados</h3>
 				<p>Encontramos {ghostPinState.nearbyPins.length} {ghostPinState.nearbyPins.length === 1 ? 'local próximo' : 'locais próximos'}. Deseja adicionar um novo ou selecionar um existente?</p>
+				{#if ghostPinState.loadingAddress}
+					<p class="address-loading">Carregando endereço...</p>
+				{:else if ghostPinState.address}
+					<p class="address-text">📍 {ghostPinState.address}</p>
+				{/if}
 			</div>
 
 			<!-- Lista de pins próximos -->
@@ -96,6 +109,11 @@
 				</div>
 				<h3>Adicionar novo local</h3>
 				<p>Nenhum local próximo encontrado. Deseja adicionar um novo marcador aqui?</p>
+				{#if ghostPinState.loadingAddress}
+					<p class="address-loading">Carregando endereço...</p>
+				{:else if ghostPinState.address}
+					<p class="address-text">📍 Criar local em: <strong>{ghostPinState.address}</strong></p>
+				{/if}
 
 				<div class="actions">
 					<Button variant="ghost" onclick={handleCancel}>Cancelar</Button>
@@ -135,9 +153,12 @@
 		margin: 0 auto;
 		display: flex;
 		flex-direction: column;
+		align-items: center;
+		justify-content: center;
 		gap: var(--md);
 		max-height: 70vh;
 		overflow-y: auto;
+		text-align: center;
 	}
 
 	.warning-section,
@@ -169,6 +190,28 @@
 		color: var(--text-secondary);
 		margin: 0;
 		max-width: 400px;
+	}
+
+	.address-text {
+		font-size: var(--sm);
+		color: var(--text-primary);
+		margin-top: var(--xs);
+		padding: var(--xs) var(--sm);
+		background: var(--bg);
+		border-radius: var(--radius-in);
+		border: 1px solid var(--border-color);
+	}
+
+	.address-text strong {
+		color: var(--brand-primary);
+		font-weight: 600;
+	}
+
+	.address-loading {
+		font-size: var(--xs);
+		color: var(--text-secondary);
+		font-style: italic;
+		margin-top: var(--xs);
 	}
 
 	.nearby-list {

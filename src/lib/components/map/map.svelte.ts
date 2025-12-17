@@ -17,6 +17,7 @@ class MapState {
   private currentLayer: LeafletMarker | null = null;
   private clusterGroup: any = null; // L.MarkerClusterGroup
   private userLocationMarker: LeafletMarker | null = null;
+  private ghostPinMarker: LeafletMarker | null = null;
   pins = $state<PinWithCategory[]>([]);
   userLocation = $state<{ lat: number; lng: number } | null>(null);
   private watchId: number | null = null;
@@ -289,6 +290,42 @@ class MapState {
 
     haptics.medium();
     ghostPinState.setGhostPin(lat, lng, nearby);
+    this.showGhostPin(lat, lng);
+  }
+
+  private showGhostPin(lat: number, lng: number) {
+    if (!this.map || !this.L) return;
+
+    // Remove ghost pin anterior se existir
+    if (this.ghostPinMarker) {
+      this.map.removeLayer(this.ghostPinMarker);
+      this.ghostPinMarker = null;
+    }
+
+    // Criar ícone do ghost pin com animação de pulso
+    const icon = this.L.divIcon({
+      className: 'ghost-pin-marker',
+      html: `
+        <div class="ghost-pin-pulse"></div>
+        <div class="ghost-pin-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+        </div>
+      `,
+      iconSize: [32, 32],
+      iconAnchor: [16, 32]
+    });
+
+    this.ghostPinMarker = this.L.marker([lat, lng], { icon, zIndexOffset: 1000 }).addTo(this.map);
+  }
+
+  clearGhostPin() {
+    if (this.ghostPinMarker && this.map) {
+      this.map.removeLayer(this.ghostPinMarker);
+      this.ghostPinMarker = null;
+    }
   }
 
   private findNearbyPins(lat: number, lng: number, radiusKm: number): PinWithCategory[] {
