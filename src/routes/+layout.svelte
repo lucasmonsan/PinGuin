@@ -11,6 +11,7 @@
 	import ToastContainer from '$lib/components/toast/ToastContainer.svelte';
 	import Splash from '$lib/components/splash/Splash.svelte';
 	import BottomSheet from '$lib/components/bottomSheet/BottomSheet.svelte';
+	import GhostPinModal from '$lib/components/ghostPin/GhostPinModal.svelte';
 	import { mapState } from '$lib/components/map/map.svelte';
 	import { bottomSheetState } from '$lib/stores/bottomSheet.svelte';
 	import { PinsService } from '$lib/services/pins.service';
@@ -114,6 +115,7 @@
 <ToastContainer />
 <Map />
 <BottomSheet />
+<GhostPinModal />
 
 {#if showOverlay}
 	<button class="overlay" onclick={handleOverlayClick} transition:fade aria-label="Fechar"></button>

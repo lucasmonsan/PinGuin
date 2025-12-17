@@ -89,6 +89,11 @@
 			// Carregar pins quando o mapa se move
 			map.on('moveend', loadPinsInView);
 
+			// Click no mapa para criar ghost pin
+			map.on('click', (e: any) => {
+				mapState.handleMapClick(e.latlng.lat, e.latlng.lng);
+			});
+
 			resizeObserver = new ResizeObserver(() => map.invalidateSize());
 			resizeObserver.observe(mapElement);
 		};

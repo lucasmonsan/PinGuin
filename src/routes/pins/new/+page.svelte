@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 	import { authState } from '$lib/stores/auth.svelte';
 	import { PinsService } from '$lib/services/pins.service';
 	import { CategoriesService } from '$lib/services/categories.service';
@@ -28,6 +29,14 @@
 		if (!authState.user) {
 			goto('/');
 			return;
+		}
+
+		// Preencher coordenadas do query params (ghost pin)
+		const lat = $page.url.searchParams.get('lat');
+		const lng = $page.url.searchParams.get('lng');
+		if (lat && lng) {
+			latitude = lat;
+			longitude = lng;
 		}
 
 		try {

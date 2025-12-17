@@ -6,6 +6,7 @@ import { MAP_CONFIG } from '$lib/constants/config';
 import { toast } from '$lib/components/toast/toast.svelte';
 import { i18n } from '$lib/i18n/i18n.svelte';
 import { navigationService } from '$lib/services/navigation.service';
+import { ghostPinState } from '$lib/stores/ghostPin.svelte';
 import { haptics } from '$lib/utils/haptics';
 import '$lib/styles/pins.css';
 
@@ -270,6 +271,37 @@ class MapState {
         zIndexOffset: 1000 // sempre por cima de outros pins
       }
     ).addTo(this.map);
+  }
+
+  // ========== Ghost Pin ==========
+
+  handleMapClick(lat: number, lng: number) {
+    // Verificar pins próximos (raio de 50m)
+    const nearby = this.findNearbyPins(lat, lng, 0.05); // ~50 metros
+
+    haptics.medium();
+    ghostPinState.setGhostPin(lat, lng, nearby);
+  }
+
+  private findNearbyPins(lat: number, lng: number, radiusKm: number): PinWithCategory[] {
+    return this.pins.filter(pin => {
+      const distance = this.calculateDistance(lat, lng, pin.latitude, pin.longitude);
+      return distance <= radiusKm;
+    });
+  }
+
+  private calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+    const R = 6371; // Earth radius in km
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLng = ((lng2 - lng1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLng / 2) *
+        Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
   }
 }
 
