@@ -6,6 +6,7 @@
 	import { fade } from 'svelte/transition';
 	import { authState } from '$lib/stores/auth.svelte';
 	import { navigationService } from '$lib/services/navigation.service';
+	import { defaultSEO, getSEOForPin } from '$lib/utils/seo';
 	import favicon from '$lib/assets/favicon.svg';
 	import Dock from '$lib/components/dock/Dock.svelte';
 	import Map from '$lib/components/map/Map.svelte';
@@ -21,6 +22,19 @@
 
 	let { children, data } = $props();
 	let showSplash = $state(true);
+
+	// SEO dinâmico baseado no pin aberto
+	let seoConfig = $derived(() => {
+		const pinId = page.url.searchParams.get('pin');
+		if (pinId && bottomSheetState.pin) {
+			return getSEOForPin(
+				bottomSheetState.pin.name,
+				bottomSheetState.pin.description || undefined,
+				bottomSheetState.pin.photos?.[0] || undefined
+			);
+		}
+		return defaultSEO;
+	});
 
 	$effect(() => {
 		authState.init(data.supabase, data.session);
@@ -129,6 +143,39 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
 	<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
 	<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+	
+	<!-- SEO Meta Tags -->
+	<title>{seoConfig().title}</title>
+	<meta name="title" content={seoConfig().title} />
+	<meta name="description" content={seoConfig().description} />
+	{#if seoConfig().keywords}
+		<meta name="keywords" content={seoConfig().keywords?.join(', ')} />
+	{/if}
+	
+	<!-- Open Graph / Facebook -->
+	<meta property="og:type" content={seoConfig().type || 'website'} />
+	<meta property="og:url" content={page.url.href} />
+	<meta property="og:title" content={seoConfig().title} />
+	<meta property="og:description" content={seoConfig().description} />
+	{#if seoConfig().image}
+		<meta property="og:image" content={seoConfig().image} />
+	{/if}
+	<meta property="og:site_name" content="LocaList" />
+	<meta property="og:locale" content="pt_BR" />
+	
+	<!-- Twitter -->
+	<meta property="twitter:card" content="summary_large_image" />
+	<meta property="twitter:url" content={page.url.href} />
+	<meta property="twitter:title" content={seoConfig().title} />
+	<meta property="twitter:description" content={seoConfig().description} />
+	{#if seoConfig().image}
+		<meta property="twitter:image" content={seoConfig().image} />
+	{/if}
+	
+	<!-- Additional SEO -->
+	<meta name="robots" content="index, follow" />
+	<meta name="googlebot" content="index, follow" />
+	<link rel="canonical" href={page.url.href} />
 </svelte:head>
 
 <Splash show={showSplash} />
