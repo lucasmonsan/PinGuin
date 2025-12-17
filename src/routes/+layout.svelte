@@ -42,6 +42,13 @@
 
 	// Geolocalização inicial com timeout inteligente
 	onMount(() => {
+		// Register Service Worker
+		if ('serviceWorker' in navigator) {
+			navigator.serviceWorker.register('/sw.js').catch((error) => {
+				logger.warn('Service Worker registration failed:', error);
+			});
+		}
+
 		let splashClosed = false;
 		
 		// Fecha splash após no máximo 2 segundos (UX melhor)
@@ -140,7 +147,13 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
+	<link rel="manifest" href="/manifest.json" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
+	<meta name="theme-color" content="#6366f1" />
+	<meta name="mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+	<meta name="apple-mobile-web-app-title" content="LocaList" />
 	<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
 	<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
 	
