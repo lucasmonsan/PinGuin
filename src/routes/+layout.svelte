@@ -26,35 +26,54 @@
 		authState.init(data.supabase, data.session);
 	});
 
-	// Geolocalização inicial
+	// Geolocalização inicial com timeout inteligente
 	onMount(() => {
+		let splashClosed = false;
+		
+		// Fecha splash após no máximo 2 segundos (UX melhor)
+		const maxSplashTimeout = setTimeout(() => {
+			if (!splashClosed) {
+				splashClosed = true;
+				showSplash = false;
+			}
+		}, 2000);
+		
+		const closeSplash = () => {
+			if (!splashClosed) {
+				splashClosed = true;
+				clearTimeout(maxSplashTimeout);
+				// Pequeno delay para transição suave
+				setTimeout(() => {
+					showSplash = false;
+				}, 300);
+			}
+		};
+		
 		if ('geolocation' in navigator) {
 			navigator.geolocation.getCurrentPosition(
 				(position) => {
 					const { latitude, longitude } = position.coords;
-					// Centraliza mapa na localização do usuário
 					mapState.setCenter?.([latitude, longitude]);
-					// Aguarda um pouco antes de remover splash para animação suave
-					setTimeout(() => {
-						showSplash = false;
-					}, 800);
+					closeSplash();
 				},
 				() => {
-					// Se usuário negar ou houver erro: centraliza no Brasil
+					// Erro ou negação: centraliza no Brasil
 					mapState.setCenter?.([-14.235, -51.9253]);
-					setTimeout(() => {
-						showSplash = false;
-					}, 800);
+					closeSplash();
 				},
-				{ timeout: 5000 }
+				{ 
+					timeout: 2000, // Reduzido para 2s
+					enableHighAccuracy: false, // Mais rápido
+					maximumAge: 60000 // Aceita cache de até 1 minuto
+				}
 			);
 		} else {
-			// Navegador não suporta geolocalização: centraliza no Brasil
+			// Navegador não suporta geolocalização
 			mapState.setCenter?.([-14.235, -51.9253]);
-			setTimeout(() => {
-				showSplash = false;
-			}, 800);
+			closeSplash();
 		}
+		
+		return () => clearTimeout(maxSplashTimeout);
 	});
 
 	// Sincronizar query params com estado do BottomSheet

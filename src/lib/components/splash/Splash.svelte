@@ -11,7 +11,7 @@
 </script>
 
 {#if show}
-	<div class="splash" transition:fade={{ duration: 800 }}>
+	<div class="splash" transition:fade={{ duration: 400 }}>
 		<div class="content">
 			<div class="logo">
 				<LogoIcon />
@@ -59,8 +59,8 @@
 			transform: scale(1);
 		}
 		50% {
-			opacity: 0.8;
-			transform: scale(1.05);
+			opacity: 0.9;
+			transform: scale(1.03);
 		}
 	}
 </style>
