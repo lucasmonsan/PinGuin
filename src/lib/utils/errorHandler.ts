@@ -1,5 +1,6 @@
 import { toast } from '$lib/components/toast/toast.svelte';
 import { i18n } from '$lib/i18n/i18n.svelte';
+import { logger } from '$lib/utils/logger';
 
 /**
  * Categorias de erros
@@ -37,8 +38,9 @@ export class ErrorHandler {
     const userMessage = this.getUserMessage(appError);
 
     // Log para debug (apenas em dev)
+    // Log para debug (apenas em dev)
     if (import.meta.env.DEV) {
-      console.error(`[${context || 'App'}]`, {
+      logger.error(`[${context || 'App'}]`, {
         category: appError.category,
         message: appError.message,
         originalError: appError.originalError
@@ -68,7 +70,7 @@ export class ErrorHandler {
     // Erro do Supabase
     if (this.isSupabaseError(error)) {
       const supabaseError = error as any;
-      
+
       if (supabaseError.code === 'PGRST116') {
         return {
           category: ErrorCategory.NOT_FOUND,
@@ -115,7 +117,7 @@ export class ErrorHandler {
     if (error instanceof Error) {
       // Verificar mensagens específicas
       const msg = error.message.toLowerCase();
-      
+
       if (msg.includes('permission') || msg.includes('unauthorized')) {
         return {
           category: ErrorCategory.PERMISSION,
@@ -164,28 +166,28 @@ export class ErrorHandler {
     switch (error.category) {
       case ErrorCategory.NETWORK:
         return t.network || 'Erro de conexão. Verifique sua internet.';
-      
+
       case ErrorCategory.AUTH:
         return t.unauthorized || 'Sessão expirada. Faça login novamente.';
-      
+
       case ErrorCategory.VALIDATION:
         return error.message || t.validation || 'Dados inválidos.';
-      
+
       case ErrorCategory.NOT_FOUND:
         return t.notFound || 'Recurso não encontrado.';
-      
+
       case ErrorCategory.PERMISSION:
         return t.permission || 'Você não tem permissão para esta ação.';
-      
+
       case ErrorCategory.STORAGE:
         return t.uploadFailed || 'Erro ao processar arquivo.';
-      
+
       case ErrorCategory.GEOLOCATION:
         if (error.code === '1') return t.locationDenied;
         if (error.code === '2') return t.locationUnavailable;
         if (error.code === '3') return t.locationTimeout;
         return t.locationUnavailable;
-      
+
       default:
         return t.generic || 'Ocorreu um erro inesperado.';
     }
@@ -200,17 +202,17 @@ export class ErrorHandler {
       case ErrorCategory.PERMISSION:
         toast.error(message);
         break;
-      
+
       case ErrorCategory.VALIDATION:
       case ErrorCategory.NOT_FOUND:
         toast.info(message);
         break;
-      
+
       case ErrorCategory.NETWORK:
       case ErrorCategory.UNKNOWN:
         toast.error(message);
         break;
-      
+
       default:
         toast.error(message);
     }
@@ -280,11 +282,11 @@ export async function handleAsync<T>(
     return [data, null];
   } catch (error) {
     const appError = ErrorHandler['categorizeError'](error);
-    
+
     if (import.meta.env.DEV) {
-      console.error(`[${context || 'AsyncHandler'}]`, appError);
+      logger.error(`[${context || 'AsyncHandler'}]`, appError);
     }
-    
+
     return [null, appError];
   }
 }
