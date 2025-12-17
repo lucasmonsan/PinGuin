@@ -5,6 +5,7 @@
 	import { authState } from '$lib/stores/auth.svelte';
 	import type { Locale } from '$lib/i18n/types';
 	import { Sun, Moon, Languages, Star, MessageSquare, Key, LogOut, Info } from 'lucide-svelte';
+	import { haptics } from '$lib/utils/haptics';
 
 	interface Props {
 		isOpen: boolean;
@@ -38,11 +39,13 @@
 	}
 
 	function handleThemeSelect(value: string) {
+		haptics.light();
 		themeState.set(value);
 		themeExpanded = false;
 	}
 
 	function handleLanguageSelect(value: Locale) {
+		haptics.light();
 		i18n.setLocale(value);
 		languageExpanded = false;
 	}

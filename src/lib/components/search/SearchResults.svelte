@@ -4,6 +4,7 @@
 	import { getPlaceLabel } from '$lib/utils/osm';
 	import { highlightMatch } from '$lib/utils/string';
 	import { i18n } from '$lib/i18n/i18n.svelte';
+	import { haptics } from '$lib/utils/haptics';
 
 	let listElements: (HTMLLIElement | null)[] = [];
 
@@ -20,7 +21,7 @@
 		<ul role="listbox">
 			{#each searchState.results as result, index}
 				<li bind:this={listElements[index]} id="result-{index}" role="option" aria-selected={searchState.focusedIndex === index} class:focused={searchState.focusedIndex === index}>
-					<button onclick={() => searchState.selectResult(result)} aria-label={`${result.properties.name}, ${getPlaceLabel(result.properties)}`}>
+					<button onclick={() => { haptics.light(); searchState.selectResult(result); }} aria-label={`${result.properties.name}, ${getPlaceLabel(result.properties)}`}>
 						<div>
 							<strong>{@html highlightMatch(result.properties.name, searchState.query)}</strong>
 							<small>{getPlaceLabel(result.properties)}</small>
