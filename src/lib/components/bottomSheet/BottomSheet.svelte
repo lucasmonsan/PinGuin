@@ -13,6 +13,7 @@
 	import ReviewItem from '../reviews/ReviewItem.svelte';
 	import ReviewForm from '../reviews/ReviewForm.svelte';
 	import Button from '../ui/Button.svelte';
+	import Skeleton from '../ui/Skeleton.svelte';
 	import { createFocusTrap } from '$lib/utils/focusTrap';
 	import { handleEscapeKey } from '$lib/utils/keyboard';
 	import { onMount } from 'svelte';
@@ -24,17 +25,28 @@
 	let isFavorited = $state(false);
 	let favoriteLoading = $state(false);
 	let showReviewForm = $state(false);
+	let isLoadingPin = $state(false);
 
 	const DRAG_THRESHOLD = 100; // pixels para confirmar ação
 	const COLLAPSED_HEIGHT = 30; // vh
 	const EXPANDED_HEIGHT = 80; // vh
 
-	// Verificar se pin está favoritado
+	// Verificar se pin está favoritado e simular loading inicial
 	$effect(() => {
-		if (bottomSheetState.pin && authState.user) {
-			isFavorited = bottomSheetState.pin.is_favorited ?? false;
-		} else {
-			isFavorited = false;
+		if (bottomSheetState.pin) {
+			// Simular pequeno delay para skeleton (somente se não tem dados de reviews ainda)
+			if (!bottomSheetState.pin.reviews) {
+				isLoadingPin = true;
+				setTimeout(() => {
+					isLoadingPin = false;
+				}, 300);
+			}
+			
+			if (authState.user) {
+				isFavorited = bottomSheetState.pin.is_favorited ?? false;
+			} else {
+				isFavorited = false;
+			}
 		}
 	});
 
@@ -236,80 +248,114 @@
 
 		<!-- Content -->
 		<div class="content" class:expanded={bottomSheetState.expanded}>
-			<div class="pin-info">
-				<!-- Category icon -->
-				{#if bottomSheetState.pin.category}
-					{@const CategoryIcon = getCategoryIcon(bottomSheetState.pin.category.name)}
-					<div class="category-badge" style="background-color: {bottomSheetState.pin.category.color};">
-						<CategoryIcon size={24} color="white" />
-					</div>
-				{/if}
-
-				<h2>{bottomSheetState.pin.name}</h2>
-
-				{#if bottomSheetState.pin.category}
-					<p class="category-name">{i18n.t.categories[bottomSheetState.pin.category.name] || bottomSheetState.pin.category.name}</p>
-				{/if}
-
-				{#if bottomSheetState.pin.average_rating > 0}
-					<div class="rating">
-						<Star size={16} fill="currentColor" />
-						<span>{bottomSheetState.pin.average_rating.toFixed(1)}</span>
-						<span class="reviews-count">({bottomSheetState.pin.reviews?.length || 0} {i18n.t.pin?.reviews || 'avaliações'})</span>
-					</div>
-				{/if}
-
-				{#if bottomSheetState.pin.address}
-					<div class="address">
-						<MapPin size={16} />
-						<span>{bottomSheetState.pin.address}</span>
-					</div>
-				{/if}
-
-				{#if bottomSheetState.pin.description}
-					<p class="description">{bottomSheetState.pin.description}</p>
-				{/if}
-			</div>
-
-			{#if bottomSheetState.expanded}
-				<div class="expanded-content">
-					<!-- Photos -->
-					{#if bottomSheetState.pin.photos && bottomSheetState.pin.photos.length > 0}
-						<div class="photos-gallery">
-							{#each bottomSheetState.pin.photos as photo}
-								<img src={photo} alt="" />
-							{/each}
+			{#if isLoadingPin}
+				<!-- Skeleton Loading -->
+				<div class="pin-info skeleton-container">
+					<Skeleton circle width="48px" height="48px" />
+					<Skeleton width="60%" height="2rem" />
+					<Skeleton width="40%" height="1rem" />
+					<Skeleton width="80%" height="1rem" />
+					<Skeleton width="100%" height="4rem" />
+				</div>
+			{:else}
+				<div class="pin-info">
+					<!-- Category icon -->
+					{#if bottomSheetState.pin.category}
+						{@const CategoryIcon = getCategoryIcon(bottomSheetState.pin.category.name)}
+						<div class="category-badge" style="background-color: {bottomSheetState.pin.category.color};">
+							<CategoryIcon size={24} color="white" />
 						</div>
 					{/if}
 
-					<!-- Reviews section -->
-					<div class="reviews-section">
-						<div class="reviews-header">
-							<h3>{i18n.t.pin?.reviewsTitle || 'Avaliações'} ({bottomSheetState.pin.reviews?.length || 0})</h3>
-							<Button variant="ghost" onclick={handleOpenReviewForm}>
-								<MessageSquarePlus size={18} />
-								Avaliar
-							</Button>
+					<h2>{bottomSheetState.pin.name}</h2>
+
+					{#if bottomSheetState.pin.category}
+						<p class="category-name">{i18n.t.categories[bottomSheetState.pin.category.name] || bottomSheetState.pin.category.name}</p>
+					{/if}
+
+					{#if bottomSheetState.pin.average_rating > 0}
+						<div class="rating">
+							<Star size={16} fill="currentColor" />
+							<span>{bottomSheetState.pin.average_rating.toFixed(1)}</span>
+							<span class="reviews-count">({bottomSheetState.pin.reviews?.length || 0} {i18n.t.pin?.reviews || 'avaliações'})</span>
 						</div>
+					{/if}
 
-						{#if showReviewForm}
-							<ReviewForm 
-								pinId={bottomSheetState.pin.id} 
-								onClose={handleCloseReviewForm}
-								onSubmit={handleReviewSubmit}
-							/>
-						{/if}
+					{#if bottomSheetState.pin.address}
+						<div class="address">
+							<MapPin size={16} />
+							<span>{bottomSheetState.pin.address}</span>
+						</div>
+					{/if}
 
-						{#if bottomSheetState.pin.reviews && bottomSheetState.pin.reviews.length > 0}
-							<div class="reviews-list">
-								{#each bottomSheetState.pin.reviews as review (review.id)}
-									<ReviewItem {review} onUpdate={handleReviewSubmit} />
+					{#if bottomSheetState.pin.description}
+						<p class="description">{bottomSheetState.pin.description}</p>
+					{/if}
+				</div>
+			{/if}
+
+			{#if bottomSheetState.expanded}
+				<div class="expanded-content">
+					{#if isLoadingPin}
+						<!-- Skeleton para expanded content -->
+						<div class="skeleton-expanded">
+							<div class="photos-skeleton">
+								{#each Array(3) as _}
+									<Skeleton width="120px" height="120px" />
 								{/each}
 							</div>
-						{:else}
-							<p class="placeholder">{i18n.t.pin?.noReviews || 'Nenhuma avaliação ainda. Seja o primeiro!'}</p>
+							<Skeleton width="100%" height="2rem" />
+							<div class="reviews-skeleton">
+								{#each Array(2) as _}
+									<div class="review-skeleton-item">
+										<Skeleton circle width="40px" height="40px" />
+										<div style="flex: 1; display: flex; flex-direction: column; gap: var(--xxs);">
+											<Skeleton width="30%" height="1rem" />
+											<Skeleton width="100%" height="3rem" />
+										</div>
+									</div>
+								{/each}
+							</div>
+						</div>
+					{:else}
+						<!-- Photos -->
+						{#if bottomSheetState.pin.photos && bottomSheetState.pin.photos.length > 0}
+							<div class="photos-gallery">
+								{#each bottomSheetState.pin.photos as photo}
+									<img src={photo} alt="" />
+								{/each}
+							</div>
 						{/if}
-					</div>
+
+						<!-- Reviews section -->
+						<div class="reviews-section">
+							<div class="reviews-header">
+								<h3>{i18n.t.pin?.reviewsTitle || 'Avaliações'} ({bottomSheetState.pin.reviews?.length || 0})</h3>
+								<Button variant="ghost" onclick={handleOpenReviewForm}>
+									<MessageSquarePlus size={18} />
+									Avaliar
+								</Button>
+							</div>
+
+							{#if showReviewForm}
+								<ReviewForm 
+									pinId={bottomSheetState.pin.id} 
+									onClose={handleCloseReviewForm}
+									onSubmit={handleReviewSubmit}
+								/>
+							{/if}
+
+							{#if bottomSheetState.pin.reviews && bottomSheetState.pin.reviews.length > 0}
+								<div class="reviews-list">
+									{#each bottomSheetState.pin.reviews as review (review.id)}
+										<ReviewItem {review} onUpdate={handleReviewSubmit} />
+									{/each}
+								</div>
+							{:else}
+								<p class="placeholder">{i18n.t.pin?.noReviews || 'Nenhuma avaliação ainda. Seja o primeiro!'}</p>
+							{/if}
+						</div>
+					{/if}
 				</div>
 			{/if}
 		</div>

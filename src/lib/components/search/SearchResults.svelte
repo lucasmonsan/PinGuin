@@ -5,6 +5,7 @@
 	import { highlightMatch } from '$lib/utils/string';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { haptics } from '$lib/utils/haptics';
+	import Skeleton from '../ui/Skeleton.svelte';
 
 	let listElements: (HTMLLIElement | null)[] = [];
 
@@ -16,7 +17,22 @@
 	});
 </script>
 
-{#if searchState.results.length > 0}
+{#if searchState.loading}
+	<!-- Skeleton loading para resultados de pesquisa -->
+	<div class="results-container shadow" transition:slideUp role="status" aria-live="polite" aria-label="Buscando resultados...">
+		<ul role="listbox" aria-label="Carregando resultados">
+			{#each Array(5) as _, index}
+				<li class="skeleton-item">
+					<div class="skeleton-content">
+						<Skeleton width="70%" height="1.2rem" />
+						<Skeleton width="40%" height="0.9rem" />
+					</div>
+					<Skeleton width="80px" height="1.5rem" />
+				</li>
+			{/each}
+		</ul>
+	</div>
+{:else if searchState.results.length > 0}
 	<div id="search-results" class="results-container shadow" transition:slideUp role="region" aria-live="polite" aria-atomic="true">
 		<ul role="listbox" aria-label="Resultados da pesquisa">
 			{#each searchState.results as result, index}
@@ -146,5 +162,25 @@
 		border-radius: 4px;
 		white-space: nowrap;
 		margin-left: var(--xs);
+	}
+
+	/* Skeleton styles */
+	.skeleton-item {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: var(--xs);
+		border-bottom: 1px solid var(--border-color);
+	}
+
+	.skeleton-item:last-child {
+		border-bottom: none;
+	}
+
+	.skeleton-content {
+		display: flex;
+		flex-direction: column;
+		gap: var(--xxs);
+		flex: 1;
 	}
 </style>

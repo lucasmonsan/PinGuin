@@ -10,10 +10,7 @@
 
 	let { show = true }: Props = $props();
 
-	let currentMessage = $derived(
-		i18n.t.splash?.messages?.[Math.floor(Math.random() * (i18n.t.splash?.messages?.length || 1))] || 
-		'Loading...'
-	);
+	let currentMessage = $derived(i18n.t.splash?.messages?.[Math.floor(Math.random() * (i18n.t.splash?.messages?.length || 1))] || 'Loading...');
 </script>
 
 {#if show}
@@ -110,4 +107,3 @@
 		}
 	}
 </style>
-

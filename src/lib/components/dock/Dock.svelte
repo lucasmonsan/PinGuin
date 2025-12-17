@@ -16,9 +16,15 @@
 	async function handleLocateUser() {
 		if (isLocating) return;
 		isLocating = true;
+		locatedRecently = false;
 		
 		try {
 			await mapState.locateUser();
+			locatedRecently = true;
+			// Remove indicador após 2 segundos
+			setTimeout(() => {
+				locatedRecently = false;
+			}, 2000);
 		} catch (error) {
 			// Erro já tratado no mapState
 		} finally {
@@ -26,11 +32,13 @@
 		}
 	}
 
+	// Pesquisas recentes e dicas aparecem juntas quando input vazio e focado
 	let showHistory = $derived(searchState.focused && searchState.query === '' && searchState.history.length > 0 && searchState.results.length === 0);
-	let showHints = $derived(searchState.focused && searchState.query === '' && searchState.history.length === 0 && searchState.results.length === 0 && !searchState.hasSearched);
+	let showHints = $derived(searchState.focused && searchState.query === '' && searchState.results.length === 0 && !searchState.hasSearched);
 	let showResults = $derived(searchState.results.length > 0 || (searchState.hasSearched && searchState.focused));
 	let isMenuOpen = $state(false);
 	let isLocating = $state(false);
+	let locatedRecently = $state(false);
 </script>
 
 <footer transition:slideUp={{ duration: 300 }}>
@@ -38,10 +46,14 @@
 		<ProfileMenu isOpen={isMenuOpen} onClose={() => (isMenuOpen = false)} />
 	{:else if showResults}
 		<SearchResults />
-	{:else if showHistory}
-		<SearchHistory />
-	{:else if showHints}
-		<SearchHints />
+	{:else if showHints || showHistory}
+		<!-- Dicas e histórico aparecem juntos -->
+		{#if showHints}
+			<SearchHints />
+		{/if}
+		{#if showHistory}
+			<SearchHistory />
+		{/if}
 	{/if}
 
 	<nav>
@@ -53,7 +65,16 @@
 			{/if}
 		</Button>
 		<SearchBar />
-		<Button variant="icon" radius="out" onclick={handleLocateUser} disabled={isLocating} aria-label={i18n.t.buttons.locate}>
+		<Button 
+			variant="icon" 
+			radius="out" 
+			onclick={handleLocateUser} 
+			disabled={isLocating} 
+			aria-label={i18n.t.buttons.locate}
+			class="gps-button"
+			data-locating={isLocating}
+			data-located={locatedRecently}
+		>
 			{#if isLocating}
 				<div class="animate-spin">
 					<Loader2 size={20} />
@@ -98,5 +119,27 @@
 		height: 20px;
 		border-radius: 50%;
 		object-fit: cover;
+	}
+
+	/* GPS Button feedback states */
+	:global(.gps-button[data-locating='true']) {
+		border: 2px solid var(--brand-primary) !important;
+		box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand-primary) 20%, transparent) !important;
+		animation: gpsPulse 1.5s ease-in-out infinite;
+	}
+
+	:global(.gps-button[data-located='true']) {
+		border: 2px solid var(--success) !important;
+		box-shadow: 0 0 0 4px color-mix(in srgb, var(--success) 20%, transparent) !important;
+		transition: all 0.3s ease;
+	}
+
+	@keyframes gpsPulse {
+		0%, 100% {
+			box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand-primary) 20%, transparent);
+		}
+		50% {
+			box-shadow: 0 0 0 8px color-mix(in srgb, var(--brand-primary) 10%, transparent);
+		}
 	}
 </style>
