@@ -11,6 +11,20 @@
 	import { validation } from '$lib/utils/validation';
 	import Button from '../ui/Button.svelte';
 	import { getCategoryIcon } from '$lib/config/categories';
+	import { createFocusTrap } from '$lib/utils/focusTrap';
+	import { handleEscapeKey } from '$lib/utils/keyboard';
+	import { onMount } from 'svelte';
+
+	let modalElement: HTMLDivElement;
+
+	onMount(() => {
+		const trap = createFocusTrap(modalElement);
+		const escapeHandler = handleEscapeKey(handleCancel);
+		return () => {
+			trap.destroy();
+			escapeHandler.destroy();
+		};
+	});
 
 	function handleCreateNew() {
 		// Validar coordenadas antes de prosseguir
@@ -59,13 +73,21 @@
 {#if ghostPinState.showGhost}
 	<button class="overlay" onclick={handleCancel} transition:fade={{ duration: 200 }} aria-label="Fechar"></button>
 
-	<div class="ghost-modal" transition:fly={{ y: 500, duration: 300 }}>
+	<div 
+		bind:this={modalElement}
+		class="ghost-modal" 
+		transition:fly={{ y: 500, duration: 300 }}
+		role="dialog"
+		aria-modal="true"
+		aria-labelledby="ghost-pin-title"
+	>
 		{#if ghostPinState.nearbyPins.length > 0}
 			<!-- Aviso de pins próximos -->
 			<div class="warning-section">
 				<div class="warning-icon">
 					<AlertTriangle size={24} />
 				</div>
+				<h2 id="ghost-pin-title" class="visually-hidden">{i18n.t.ghostPin.nearbyFound}</h2>
 				<h3>{i18n.t.ghostPin.nearbyFound}</h3>
 				<p>
 					{i18n.t.ghostPin.nearbyFoundDesc.replace('{count}', ghostPinState.nearbyPins.length.toString())}

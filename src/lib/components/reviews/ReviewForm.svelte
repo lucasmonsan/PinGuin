@@ -176,19 +176,21 @@
 	>
 		<!-- Rating Stars -->
 		<div class="rating-section">
-			<label>Avaliação *</label>
-			<div class="stars">
+			<div class="rating-label" id="rating-label">Avaliação *</div>
+			<div class="stars" role="radiogroup" aria-labelledby="rating-label" aria-required="true">
 				{#each Array(5) as _, i}
 					<button
 						type="button"
 						class="star"
+						role="radio"
+						aria-checked={rating === i + 1}
 						onmouseenter={() => (hoverRating = i + 1)}
 						onmouseleave={() => (hoverRating = 0)}
 						onclick={() => {
 							rating = i + 1;
 							haptics.light();
 						}}
-						aria-label={`${i + 1} estrelas`}
+						aria-label={`${i + 1} ${i === 0 ? 'estrela' : 'estrelas'}`}
 					>
 						<Star size={32} fill={i < (hoverRating || rating) ? 'currentColor' : 'none'} />
 					</button>
@@ -285,11 +287,7 @@
 		gap: var(--xs);
 	}
 
-	.rating-section label {
-		font-size: var(--sm);
-		font-weight: 600;
-		color: var(--text-primary);
-	}
+	/* Removed unused label CSS - now using .rating-label */
 
 	.stars {
 		display: flex;

@@ -36,10 +36,10 @@
 			</button>
 		</div>
 
-		<ul role="list">
+		<ul role="list" aria-label="Histórico de pesquisas">
 			{#each history as item (item.timestamp)}
 				<li>
-					<button onclick={() => handleSelectHistory(item)}>
+					<button onclick={() => handleSelectHistory(item)} aria-label={`${item.result.properties.name}, pesquisado ${formatRelativeTime(item.timestamp)}`}>
 						<div class="icon-wrapper">
 							<Clock size={18} />
 						</div>

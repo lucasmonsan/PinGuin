@@ -9,6 +9,7 @@
 	import { defaultSEO, getSEOForPin } from '$lib/utils/seo';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import favicon from '$lib/assets/favicon.svg';
+	import SkipLink from '$lib/components/layout/SkipLink.svelte';
 	import Dock from '$lib/components/dock/Dock.svelte';
 	import Map from '$lib/components/map/Map.svelte';
 	import ToastContainer from '$lib/components/toast/ToastContainer.svelte';
@@ -227,6 +228,8 @@
 <Map />
 <BottomSheet />
 <GhostPinModal />
+
+<SkipLink />
 
 {#if showOverlay}
 	<button class="overlay" onclick={handleOverlayClick} transition:fade aria-label="Fechar"></button>

@@ -2,7 +2,7 @@
 	let { children } = $props();
 </script>
 
-<main>
+<main id="main-content" tabindex="-1">
 	{@render children()}
 </main>
 

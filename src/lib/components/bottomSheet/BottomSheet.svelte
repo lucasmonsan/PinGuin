@@ -13,6 +13,9 @@
 	import ReviewItem from '../reviews/ReviewItem.svelte';
 	import ReviewForm from '../reviews/ReviewForm.svelte';
 	import Button from '../ui/Button.svelte';
+	import { createFocusTrap } from '$lib/utils/focusTrap';
+	import { handleEscapeKey } from '$lib/utils/keyboard';
+	import { onMount } from 'svelte';
 
 	let startY = $state(0);
 	let currentY = $state(0);
@@ -38,6 +41,26 @@
 	// Sincronizar showReviewForm com URL
 	$effect(() => {
 		showReviewForm = bottomSheetState.showReviewForm;
+	});
+
+	// Focus trap quando expandido
+	onMount(() => {
+		let trap: ReturnType<typeof createFocusTrap> | null = null;
+		const escapeHandler = handleEscapeKey(handleClose);
+
+		$effect(() => {
+			if (bottomSheetState.expanded && sheetElement) {
+				trap = createFocusTrap(sheetElement);
+			} else if (trap) {
+				trap.destroy();
+				trap = null;
+			}
+		});
+
+		return () => {
+			trap?.destroy();
+			escapeHandler.destroy();
+		};
 	});
 
 	function handleTouchStart(e: TouchEvent) {

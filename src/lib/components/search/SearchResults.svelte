@@ -17,8 +17,8 @@
 </script>
 
 {#if searchState.results.length > 0}
-	<div id="search-results" class="results-container shadow" transition:slideUp>
-		<ul role="listbox">
+	<div id="search-results" class="results-container shadow" transition:slideUp role="region" aria-live="polite" aria-atomic="true">
+		<ul role="listbox" aria-label="Resultados da pesquisa">
 			{#each searchState.results as result, index}
 				<li bind:this={listElements[index]} id="result-{index}" role="option" aria-selected={searchState.focusedIndex === index} class:focused={searchState.focusedIndex === index}>
 					<button onclick={() => { haptics.light(); searchState.selectResult(result); }} aria-label={`${result.properties.name}, ${getPlaceLabel(result.properties)}`}>
@@ -38,7 +38,7 @@
 		</ul>
 	</div>
 {:else if searchState.hasSearched && searchState.results.length === 0 && !searchState.loading}
-	<div class="results-container shadow error" transition:slideUp>
+	<div class="results-container shadow error" transition:slideUp role="status" aria-live="polite">
 		<p>{i18n.t.search.noResults} "<strong>{searchState.lastSearchedQuery}</strong>"</p>
 	</div>
 {/if}

@@ -62,12 +62,19 @@
 </script>
 
 {#if isOpen}
-	<div class="profile-menu shadow" transition:slideUp>
+	<div class="profile-menu shadow" transition:slideUp role="menu">
 		<section class="settings-row">
-			<label class="section-label">{i18n.t.profile.theme.title}</label>
-			<div class="theme-toggle">
+			<div class="section-label" id="theme-label">{i18n.t.profile.theme.title}</div>
+			<div class="theme-toggle" role="radiogroup" aria-labelledby="theme-label">
 				{#each themes as theme}
-					<button class="theme-button" class:active={themeState.value === theme.value} onclick={() => handleThemeSelect(theme.value)} aria-label={theme.label}>
+					<button 
+						class="theme-button" 
+						class:active={themeState.value === theme.value} 
+						onclick={() => handleThemeSelect(theme.value)} 
+						role="radio"
+						aria-checked={themeState.value === theme.value}
+						aria-label={theme.label}
+					>
 						<svelte:component this={theme.icon} size={18} />
 					</button>
 				{/each}
@@ -75,10 +82,17 @@
 		</section>
 
 		<section class="settings-row">
-			<label class="section-label">{i18n.t.profile.language.title}</label>
-			<div class="language-toggle">
+			<div class="section-label" id="language-label">{i18n.t.profile.language.title}</div>
+			<div class="language-toggle" role="radiogroup" aria-labelledby="language-label">
 				{#each languages as lang}
-					<button class="language-button" class:active={i18n.locale === lang.value} onclick={() => handleLanguageSelect(lang.value)} aria-label={lang.label}>
+					<button 
+						class="language-button" 
+						class:active={i18n.locale === lang.value} 
+						onclick={() => handleLanguageSelect(lang.value)} 
+						role="radio"
+						aria-checked={i18n.locale === lang.value}
+						aria-label={lang.label}
+					>
 						{lang.flag}
 					</button>
 				{/each}
@@ -114,12 +128,12 @@
 			{#if authState.user}
 				<div class="user-action">
 					<small class="user-email">{authState.user.email}</small>
-					<button class="logout" onclick={() => authState.signOut()}>
-						<span class="icon-wrapper small">
-							<LogOut size={16} />
-						</span>
-						{i18n.t.profile.logout}
-					</button>
+				<button class="logout" onclick={() => authState.signOut()} aria-label={i18n.t.profile.logout}>
+					<span class="icon-wrapper small">
+						<LogOut size={16} />
+					</span>
+					{i18n.t.profile.logout}
+				</button>
 				</div>
 			{:else}
 				<a

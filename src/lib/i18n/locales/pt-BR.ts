@@ -1,6 +1,14 @@
 import type { I18nDictionary } from '../types';
 
 export const ptBR: I18nDictionary = {
+  a11y: {
+    skipToContent: 'Ir para o conteúdo principal',
+    loading: 'Carregando...',
+    closeDialog: 'Fechar janela',
+    openMenu: 'Abrir menu',
+    toggleTheme: 'Alternar tema',
+    selectLanguage: 'Selecionar idioma'
+  },
   search: {
     placeholder: 'Pesquise no Monsan Map...',
     noResults: 'Nenhum local encontrado para',

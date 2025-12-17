@@ -1,6 +1,14 @@
 import type { I18nDictionary } from '../types';
 
 export const enUS: I18nDictionary = {
+  a11y: {
+    skipToContent: 'Skip to main content',
+    loading: 'Loading...',
+    closeDialog: 'Close dialog',
+    openMenu: 'Open menu',
+    toggleTheme: 'Toggle theme',
+    selectLanguage: 'Select language'
+  },
   search: {
     placeholder: 'Search on Monsan Map...',
     noResults: 'No location found for',
