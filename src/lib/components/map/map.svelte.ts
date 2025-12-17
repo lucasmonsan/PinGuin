@@ -25,6 +25,11 @@ class MapState {
     return this.map.getCenter();
   }
 
+  setCenter(coords: [number, number]) {
+    if (!this.map) return;
+    this.map.setView(coords, MAP_CONFIG.SEARCH_ZOOM);
+  }
+
   locateUser() {
     if (!this.map) return;
 

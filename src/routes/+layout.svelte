@@ -9,13 +9,47 @@
 	import Dock from '$lib/components/dock/Dock.svelte';
 	import Map from '$lib/components/map/Map.svelte';
 	import ToastContainer from '$lib/components/toast/ToastContainer.svelte';
+	import Splash from '$lib/components/splash/Splash.svelte';
+	import { mapState } from '$lib/components/map/map.svelte';
 	import '../app.css';
 	import Main from '$lib/components/layout/Main.svelte';
 
 	let { children, data } = $props();
+	let showSplash = $state(true);
 
 	$effect(() => {
 		authState.init(data.supabase, data.session);
+	});
+
+	// Geolocalização inicial
+	onMount(() => {
+		if ('geolocation' in navigator) {
+			navigator.geolocation.getCurrentPosition(
+				(position) => {
+					const { latitude, longitude } = position.coords;
+					// Centraliza mapa na localização do usuário
+					mapState.setCenter?.([latitude, longitude]);
+					// Aguarda um pouco antes de remover splash para animação suave
+					setTimeout(() => {
+						showSplash = false;
+					}, 800);
+				},
+				() => {
+					// Se usuário negar ou houver erro: centraliza no Brasil
+					mapState.setCenter?.([-14.235, -51.9253]);
+					setTimeout(() => {
+						showSplash = false;
+					}, 800);
+				},
+				{ timeout: 5000 }
+			);
+		} else {
+			// Navegador não suporta geolocalização: centraliza no Brasil
+			mapState.setCenter?.([-14.235, -51.9253]);
+			setTimeout(() => {
+				showSplash = false;
+			}, 800);
+		}
 	});
 
 	// Sincronizar query params com estado da aplicação
@@ -58,6 +92,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
 </svelte:head>
 
+<Splash show={showSplash} />
 <ToastContainer />
 <Map />
 
