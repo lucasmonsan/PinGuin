@@ -8,6 +8,7 @@
 	import { toast } from '$lib/components/toast/toast.svelte';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { processImage, formatFileSize } from '$lib/utils/imageCompression';
+	import { validation } from '$lib/utils/validation';
 	import { onMount } from 'svelte';
 	import type { PinCategory } from '$lib/types/database.types';
 	import Button from '$lib/components/ui/Button.svelte';
@@ -57,6 +58,16 @@
 		
 		if (!files || files.length === 0) return;
 
+		// Validar cada arquivo
+		for (const file of Array.from(files)) {
+			const imageValidation = validation.isValidImage(file, 5);
+			if (!imageValidation.valid) {
+				toast.error(imageValidation.error || 'Arquivo inválido');
+				input.value = '';
+				return;
+			}
+		}
+
 		uploading = true;
 		const tempPinId = crypto.randomUUID();
 
@@ -105,8 +116,37 @@
 			return;
 		}
 
-		if (!name.trim() || !categoryId || !latitude || !longitude) {
+		// Validar campos obrigatórios
+		const trimmedName = name.trim();
+		if (!trimmedName || !categoryId || !latitude || !longitude) {
 			toast.error('Preencha todos os campos obrigatórios');
+			return;
+		}
+
+		// Validar nome
+		if (!validation.isValidPinName(trimmedName)) {
+			toast.error('Nome do local deve ter entre 3 e 255 caracteres');
+			return;
+		}
+
+		// Validar descrição
+		const trimmedDescription = description.trim();
+		if (trimmedDescription && !validation.isValidDescription(trimmedDescription)) {
+			toast.error('Descrição muito longa (máximo 1000 caracteres)');
+			return;
+		}
+
+		// Validar coordenadas
+		const lat = parseFloat(latitude);
+		const lng = parseFloat(longitude);
+		if (!validation.isValidCoordinates(lat, lng)) {
+			toast.error('Coordenadas inválidas');
+			return;
+		}
+
+		// Validar UUIDs
+		if (!validation.isValidUUID(authState.user.id) || !validation.isValidUUID(categoryId)) {
+			toast.error('Dados inválidos');
 			return;
 		}
 
@@ -115,11 +155,11 @@
 		try {
 			await PinsService.createPin({
 				user_id: authState.user.id,
-				name: name.trim(),
-				description: description.trim() || null,
+				name: trimmedName,
+				description: trimmedDescription || null,
 				category_id: categoryId,
-				latitude: parseFloat(latitude),
-				longitude: parseFloat(longitude),
+				latitude: lat,
+				longitude: lng,
 				address: address.trim() || null,
 				photos: photos.map(p => p.original),
 				is_public: isPublic
@@ -129,7 +169,8 @@
 			goto('/');
 		} catch (err) {
 			logger.error('Error creating pin:', err);
-			toast.error(i18n.t.errors.createPinFailed);
+			const errorMessage = err instanceof Error ? err.message : i18n.t.errors.createPinFailed;
+			toast.error(errorMessage);
 		} finally {
 			loading = false;
 		}

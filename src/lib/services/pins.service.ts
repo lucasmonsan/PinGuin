@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { ErrorHandler, ErrorCategory } from '$lib/utils/errorHandler';
+import { validation } from '$lib/utils/validation';
 import type { Pin, PinInsert, PinUpdate, PinWithCategory, PinWithDetails } from '$lib/types/database.types';
 
 export class PinsService {
@@ -137,10 +138,38 @@ export class PinsService {
 	 * Create a new pin
 	 */
 	static async createPin(pin: PinInsert): Promise<Pin> {
+		// Validação de dados
+		if (!validation.isValidCoordinates(pin.latitude, pin.longitude)) {
+			throw new Error('Coordenadas inválidas');
+		}
+
+		if (!validation.isValidPinName(pin.name)) {
+			throw new Error('Nome do local deve ter entre 3 e 255 caracteres');
+		}
+
+		if (pin.description && !validation.isValidDescription(pin.description)) {
+			throw new Error('Descrição muito longa (máximo 1000 caracteres)');
+		}
+
+		if (!validation.isValidUUID(pin.user_id)) {
+			throw new Error('ID de usuário inválido');
+		}
+
+		if (!validation.isValidUUID(pin.category_id)) {
+			throw new Error('ID de categoria inválido');
+		}
+
+		// Sanitizar strings contra XSS
+		const sanitizedPin: PinInsert = {
+			...pin,
+			name: validation.sanitizeHTML(pin.name.trim()),
+			description: pin.description ? validation.sanitizeHTML(pin.description.trim()) : null
+		};
+
 		try {
 			const { data, error } = await supabase
 				.from('map_pins')
-				.insert(pin)
+				.insert(sanitizedPin)
 				.select()
 				.single();
 
@@ -156,9 +185,38 @@ export class PinsService {
 	 * Update a pin
 	 */
 	static async updatePin(pinId: string, updates: PinUpdate): Promise<Pin> {
+		// Validar UUID
+		if (!validation.isValidUUID(pinId)) {
+			throw new Error('ID de pin inválido');
+		}
+
+		// Validar campos se fornecidos
+		if (updates.name !== undefined && !validation.isValidPinName(updates.name)) {
+			throw new Error('Nome do local deve ter entre 3 e 255 caracteres');
+		}
+
+		if (updates.description !== undefined && updates.description !== null && !validation.isValidDescription(updates.description)) {
+			throw new Error('Descrição muito longa (máximo 1000 caracteres)');
+		}
+
+		if (updates.latitude !== undefined && updates.longitude !== undefined) {
+			if (!validation.isValidCoordinates(updates.latitude, updates.longitude)) {
+				throw new Error('Coordenadas inválidas');
+			}
+		}
+
+		// Sanitizar strings contra XSS
+		const sanitizedUpdates: PinUpdate = { ...updates };
+		if (updates.name) {
+			sanitizedUpdates.name = validation.sanitizeHTML(updates.name.trim());
+		}
+		if (updates.description) {
+			sanitizedUpdates.description = validation.sanitizeHTML(updates.description.trim());
+		}
+
 		const { data, error } = await supabase
 			.from('map_pins')
-			.update(updates)
+			.update(sanitizedUpdates)
 			.eq('id', pinId)
 			.select()
 			.single();
@@ -276,6 +334,29 @@ export class PinsService {
 		comment?: string | null;
 		photos?: string[];
 	}): Promise<void> {
+		// Validação de dados
+		if (!validation.isValidUUID(review.pin_id)) {
+			throw new Error('ID de pin inválido');
+		}
+
+		if (!validation.isValidUUID(review.user_id)) {
+			throw new Error('ID de usuário inválido');
+		}
+
+		if (!validation.isValidRating(review.rating)) {
+			throw new Error('Rating deve ser um número inteiro entre 1 e 5');
+		}
+
+		if (review.comment && !validation.isValidComment(review.comment)) {
+			throw new Error('Comentário deve ter entre 1 e 500 caracteres');
+		}
+
+		// Sanitizar comentário contra XSS
+		const sanitizedReview = {
+			...review,
+			comment: review.comment ? validation.sanitizeHTML(review.comment.trim()) : null
+		};
+
 		// Check if user already reviewed this pin
 		const { data: existing } = await supabase
 			.from('map_reviews')
@@ -288,7 +369,7 @@ export class PinsService {
 			throw new Error('Você já avaliou este local');
 		}
 
-		const { error } = await supabase.from('map_reviews').insert(review);
+		const { error } = await supabase.from('map_reviews').insert(sanitizedReview);
 
 		if (error) throw error;
 	}

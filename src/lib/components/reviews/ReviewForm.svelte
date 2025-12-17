@@ -5,6 +5,7 @@
 	import { processImage } from '$lib/utils/imageCompression';
 	import { ProfanityFilter } from '$lib/utils/profanityFilter';
 	import { RateLimiter, RateLimitPresets } from '$lib/utils/rateLimit';
+	import { validation } from '$lib/utils/validation';
 	import { haptics } from '$lib/utils/haptics';
 	import { toast } from '$lib/components/toast/toast.svelte';
 	import { i18n } from '$lib/i18n/i18n.svelte';
@@ -34,6 +35,16 @@
 		if (photos.length + files.length > 3) {
 			toast.error('Máximo 3 fotos por avaliação');
 			return;
+		}
+
+		// Validar cada arquivo
+		for (const file of Array.from(files)) {
+			const imageValidation = validation.isValidImage(file, 5);
+			if (!imageValidation.valid) {
+				toast.error(imageValidation.error || 'Arquivo inválido');
+				if (input) input.value = '';
+				return;
+			}
 		}
 
 		// Rate limiting para upload
@@ -90,10 +101,21 @@
 			return;
 		}
 
-		if (rating === 0) {
-			toast.error('Selecione uma avaliação');
+		// Validar rating
+		if (!validation.isValidRating(rating)) {
+			toast.error('Selecione uma avaliação válida (1-5 estrelas)');
 			return;
 		}
+
+		// Validar comentário se fornecido
+		const trimmedComment = comment.trim();
+		if (trimmedComment && !validation.isValidComment(trimmedComment)) {
+			toast.error('Comentário deve ter entre 1 e 500 caracteres');
+			return;
+		}
+
+		// Sanitizar comentário contra XSS
+		const sanitizedComment = trimmedComment ? validation.sanitizeHTML(trimmedComment) : '';
 
 		// Rate limiting
 		const rateLimitKey = `review_${authState.user.id}`;
@@ -101,10 +123,10 @@
 		if (!canProceed) return;
 
 		// Validação de profanidade
-		if (comment.trim()) {
-			const validation = ProfanityFilter.validateComment(comment);
-			if (!validation.valid) {
-				toast.error(validation.message || 'Comentário inválido');
+		if (sanitizedComment) {
+			const profanityValidation = ProfanityFilter.validateComment(sanitizedComment);
+			if (!profanityValidation.valid) {
+				toast.error(profanityValidation.message || 'Comentário inválido');
 				return;
 			}
 		}
@@ -119,7 +141,7 @@
 				pin_id: pinId,
 				user_id: authState.user.id,
 				rating,
-				comment: comment.trim() || null,
+				comment: sanitizedComment || null,
 				photos: photos.length > 0 ? photos : undefined
 			});
 

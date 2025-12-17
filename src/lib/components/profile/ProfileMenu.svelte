@@ -100,10 +100,10 @@
 		<section>
 			<button class="collapsible" onclick={toggleTheme} aria-expanded={themeExpanded}>
 				<span class="collapsible-content">
-				<span class="icon-wrapper">
-					<svelte:component this={getThemeIcon()} size={18} />
-				</span>
-				{i18n.t.profile.theme.title}: <strong>{getThemeLabel(themeState.value)}</strong>
+					<span class="icon-wrapper">
+						<svelte:component this={getThemeIcon()} size={18} />
+					</span>
+					{i18n.t.profile.theme.title}: <strong>{getThemeLabel(themeState.value)}</strong>
 				</span>
 				<span class="arrow" class:expanded={themeExpanded}>▼</span>
 			</button>
@@ -111,10 +111,10 @@
 			{#if themeExpanded}
 				<div class="options" transition:slideUp={{ duration: 200 }}>
 					{#each themes as theme}
-					<button class="option" class:active={themeState.value === theme.value} onclick={() => handleThemeSelect(theme.value)}>
-						<span class="icon-wrapper small">
-							<svelte:component this={theme.icon} size={16} />
-						</span>
+						<button class="option" class:active={themeState.value === theme.value} onclick={() => handleThemeSelect(theme.value)}>
+							<span class="icon-wrapper small">
+								<svelte:component this={theme.icon} size={16} />
+							</span>
 							{getThemeLabel(theme.value)}
 						</button>
 					{/each}
@@ -181,16 +181,19 @@
 					</span>
 					{i18n.t.profile.logout}
 				</button>
-		{:else}
-			<a href={`https://monsan.duckdns.org/login?redirect=${encodeURIComponent(typeof window !== 'undefined' ? window.location.origin : 'https://map.monsan.duckdns.org')}`} class="login-link">
-				<button class="login">
-					<span class="icon-wrapper small">
-						<Key size={16} />
-					</span>
-					{i18n.t.profile.login}
-				</button>
-			</a>
-		{/if}
+			{:else}
+				<a
+					href={`https://monsan.duckdns.org/login?redirect=${encodeURIComponent(typeof window !== 'undefined' ? window.location.origin : 'https://map.monsan.duckdns.org')}`}
+					class="login-link"
+				>
+					<button class="login">
+						<span class="icon-wrapper small">
+							<Key size={16} />
+						</span>
+						{i18n.t.profile.login}
+					</button>
+				</a>
+			{/if}
 		</section>
 	</div>
 {/if}
@@ -316,8 +319,7 @@
 		gap: var(--xxxs);
 	}
 
-	.links a,
-	.dev-option {
+	.links a {
 		display: flex;
 		align-items: center;
 		gap: var(--xxs);
@@ -328,19 +330,10 @@
 		text-decoration: none;
 		border-radius: var(--radius-in);
 		transition: background var(--fast);
-		width: 100%;
-		border: none;
-		background: transparent;
-		cursor: pointer;
-		text-align: left;
 
 		&:hover {
 			background: var(--bg);
 		}
-	}
-
-	.dev-option {
-		color: var(--brand-primary);
 	}
 
 	.action {

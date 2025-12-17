@@ -8,10 +8,17 @@
 	import { haptics } from '$lib/utils/haptics';
 	import { toast } from '$lib/components/toast/toast.svelte';
 	import { i18n } from '$lib/i18n/i18n.svelte';
+	import { validation } from '$lib/utils/validation';
 	import Button from '../ui/Button.svelte';
 	import { getCategoryIcon } from '$lib/config/categories';
 
 	function handleCreateNew() {
+		// Validar coordenadas antes de prosseguir
+		if (!validation.isValidCoordinates(ghostPinState.latitude, ghostPinState.longitude)) {
+			toast.error(i18n.t.errors.invalidCoordinates || 'Coordenadas inválidas');
+			ghostPinState.clear();
+			return;
+		}
 		if (!authState.user) {
 			toast.error(i18n.t.errors.loginRequired);
 			ghostPinState.clear();
