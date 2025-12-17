@@ -24,12 +24,12 @@ class MapState {
   async setMap(mapInstance: LeafletMap | null, leafletLibrary: LeafletLibrary | null) {
     this.map = mapInstance;
     this.L = leafletLibrary;
-    
+
     // Inicializar cluster group
     if (this.map && this.L) {
       // Importar MarkerCluster dinamicamente
       await import('leaflet.markercluster');
-      
+
       this.clusterGroup = (this.L as any).markerClusterGroup({
         maxClusterRadius: 80,
         spiderfyOnMaxZoom: true,
@@ -38,10 +38,10 @@ class MapState {
         iconCreateFunction: (cluster: any) => {
           const count = cluster.getChildCount();
           let size = 'small';
-          
+
           if (count > 10) size = 'medium';
           if (count > 50) size = 'large';
-          
+
           return (this.L as any).divIcon({
             html: `<div class="cluster-marker cluster-${size}">${count}</div>`,
             className: 'marker-cluster-custom',
@@ -49,7 +49,7 @@ class MapState {
           });
         }
       });
-      
+
       this.map.addLayer(this.clusterGroup);
     }
   }
@@ -106,15 +106,22 @@ class MapState {
       this.map.removeLayer(this.currentLayer);
     }
 
-    const cssClass = type === 'area' ? 'area-marker' : 'pin-marker';
+    // Pin de busca - visual diferente do pin do usuário
     const icon = this.L.divIcon({
-      className: 'custom-pin',
-      html: `<div class="${cssClass}"></div>`,
-      iconSize: [MAP_CONFIG.MARKER_SIZE, MAP_CONFIG.MARKER_SIZE],
-      iconAnchor: [MAP_CONFIG.MARKER_SIZE / 2, MAP_CONFIG.MARKER_SIZE / 2]
+      className: 'search-location-pin',
+      html: `
+        <div class="search-pin-marker">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+        </div>
+      `,
+      iconSize: [32, 40],
+      iconAnchor: [16, 40]
     });
 
-    this.currentLayer = this.L.marker([lat, lng], { icon }).addTo(this.map);
+    this.currentLayer = this.L.marker([lat, lng], { icon, zIndexOffset: 500 }).addTo(this.map);
 
     if (properties.extent) {
       const [minLng, minLat, maxLng, maxLat] = properties.extent;
@@ -141,7 +148,7 @@ class MapState {
 
     const categoryColor = pin.category?.color || '#A29BFE';
     const categoryName = pin.category?.name || 'other';
-    
+
     // Criar ícone SVG inline do Lucide
     const svgIcon = this.createCategoryIconSVG(categoryName);
 
@@ -157,7 +164,7 @@ class MapState {
     });
 
     const marker = this.L.marker([pin.latitude, pin.longitude], { icon });
-    
+
     marker.on('click', () => {
       haptics.medium();
       navigationService.openPin(pin.id);
@@ -298,9 +305,9 @@ class MapState {
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLng / 2) *
-        Math.sin(dLng / 2);
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLng / 2) *
+      Math.sin(dLng / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   }

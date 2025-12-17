@@ -11,9 +11,9 @@
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import ProfileMenu from '../profile/ProfileMenu.svelte';
 
-	let showHistory = $derived(searchState.focused && searchState.query === '' && searchState.history.length > 0 && !searchState.hasSearched);
-	let showHints = $derived(searchState.focused && searchState.query === '' && searchState.history.length === 0 && !searchState.hasSearched);
-	let showResults = $derived(searchState.results.length > 0 || searchState.hasSearched);
+	let showHistory = $derived(searchState.focused && searchState.query === '' && searchState.history.length > 0 && searchState.results.length === 0 && !searchState.hasSearched);
+	let showHints = $derived(searchState.focused && searchState.query === '' && searchState.history.length === 0 && searchState.results.length === 0 && !searchState.hasSearched);
+	let showResults = $derived((searchState.results.length > 0 || searchState.hasSearched) && searchState.focused);
 	let isMenuOpen = $state(false);
 </script>
 

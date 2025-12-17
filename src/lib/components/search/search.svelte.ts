@@ -139,6 +139,7 @@ class SearchState {
     this.lastSearchedQuery = label;
     this.isResultSelected = true;
     this.results = [];
+    this.hasSearched = false; // Reset para não mostrar "nenhum local encontrado"
     this.focused = false;
     this.focusedIndex = -1;
 
@@ -388,7 +389,7 @@ class SearchState {
 
     try {
       // Remove duplicate if exists (by query)
-      const filtered = this.history.filter(item => 
+      const filtered = this.history.filter(item =>
         item.query.toLowerCase() !== query.toLowerCase()
       );
 

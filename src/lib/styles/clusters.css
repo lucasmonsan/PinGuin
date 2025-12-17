@@ -117,3 +117,37 @@
 	}
 }
 
+/* Search Location Pin */
+.search-location-pin {
+	background: transparent;
+	border: none;
+}
+
+.search-pin-marker {
+	width: 32px;
+	height: 40px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--error);
+	filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+	animation: searchPinBounce 0.5s ease-out;
+}
+
+.search-pin-marker svg {
+	fill: var(--error);
+}
+
+@keyframes searchPinBounce {
+	0% {
+		transform: translateY(-40px) scale(0.5);
+		opacity: 0;
+	}
+	50% {
+		transform: translateY(5px) scale(1.1);
+	}
+	100% {
+		transform: translateY(0) scale(1);
+		opacity: 1;
+	}
+}
