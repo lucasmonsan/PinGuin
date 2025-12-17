@@ -138,6 +138,7 @@
 			PinsService.getPinById(pinId, authState.user?.id).then(pin => {
 				if (pin) {
 					bottomSheetState.open(pin, { expanded, showReviewForm: showReview });
+					mapState.selectPin(pin.id);
 				} else {
 					// Pin não encontrado: limpar URL
 					navigationService.closeBottomSheet();
@@ -146,10 +147,16 @@
 		} else if (!pinId && bottomSheetState.pin) {
 			// URL não tem pin mas BottomSheet está aberto: fechar
 			bottomSheetState.close();
+			mapState.deselectPin();
 		} else if (pinId && bottomSheetState.pin) {
 			// Apenas atualizar estado se já está aberto
 			bottomSheetState.expanded = expanded;
 			bottomSheetState.showReviewForm = showReview;
+			
+			// Garantir que o pin esteja selecionado no mapa (caso de reload)
+			if (mapState.selectedPinId !== pinId) {
+				mapState.selectPin(pinId);
+			}
 		}
 	});
 

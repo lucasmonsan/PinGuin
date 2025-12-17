@@ -20,6 +20,8 @@ class MapState {
   private ghostPinMarker: LeafletMarker | null = null;
   pins = $state<PinWithCategory[]>([]);
   userLocation = $state<{ lat: number; lng: number } | null>(null);
+  selectedPinId = $state<string | null>(null);
+  private markers = new Map<string, LeafletMarker>();
   private watchId: number | null = null;
 
   async setMap(mapInstance: LeafletMap | null, leafletLibrary: LeafletLibrary | null) {
@@ -142,6 +144,51 @@ class MapState {
     }
   }
 
+  selectPin(pinId: string) {
+    if (!this.map || !this.L) return;
+
+    this.deselectPin();
+    this.selectedPinId = pinId;
+
+    const marker = this.markers.get(pinId);
+    if (marker) {
+      // Zoom to pin
+      const latLng = marker.getLatLng();
+      this.map.flyTo(latLng, 16, { animate: true, duration: 0.5 });
+
+      // Add selected class
+      // Note: we need to delay slightly if the marker is inside a cluster and needs to expand
+      // But for now let's assume direct access or visible marker
+      const element = marker.getElement();
+      if (element) {
+        element.classList.add('pin-selected');
+      } else {
+        // If element is not created (e.g. inside cluster), we might need to spiderfy or zoom
+        // This is handled by cluster spiderfy usually, but user might need to zoom in first.
+        // For now, simple implementation.
+        this.clusterGroup?.zoomToShowLayer(marker, () => {
+          const el = marker.getElement();
+          if (el) el.classList.add('pin-selected');
+        });
+      }
+    }
+  }
+
+  deselectPin() {
+    this.selectedPinId = null;
+
+    // Remove class from all markers that might have it
+    // More efficient to just track the selected one, but iterating is safe
+    this.markers.forEach(marker => {
+      const element = marker.getElement();
+      if (element) {
+        element.classList.remove('pin-selected');
+      }
+    });
+
+    // Also checking if we need to close spiderfy etc, but usually not needed for simple deselect
+  }
+
   // ========== Pin Management ==========
 
   addPin(pin: PinWithCategory) {
@@ -168,9 +215,11 @@ class MapState {
 
     marker.on('click', () => {
       haptics.medium();
+      this.selectPin(pin.id);
       navigationService.openPin(pin.id);
     });
 
+    this.markers.set(pin.id, marker);
     this.clusterGroup.addLayer(marker);
   }
 
@@ -210,6 +259,8 @@ class MapState {
   clearPins() {
     if (this.clusterGroup) {
       this.clusterGroup.clearLayers();
+      this.markers.clear();
+      this.selectedPinId = null;
     }
   }
 

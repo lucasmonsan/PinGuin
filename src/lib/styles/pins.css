@@ -56,6 +56,35 @@
 	}
 }
 
+/* Selected Pin Styles */
+.pin-selected {
+	z-index: 1000 !important;
+}
+
+.pin-selected .pin-marker-content {
+	transform: scale(1.2);
+	box-shadow:
+		0 0 0 4px var(--surface),
+		0 0 0 6px var(--brand-primary) !important;
+	animation: pinBounce 0.6s ease-out;
+}
+
+@keyframes pinBounce {
+	0%,
+	100% {
+		transform: translateY(0) scale(1.2);
+	}
+	25% {
+		transform: translateY(-10px) scale(1.2);
+	}
+	50% {
+		transform: translateY(0) scale(1.2);
+	}
+	75% {
+		transform: translateY(-5px) scale(1.2);
+	}
+}
+
 /* Ghost Pin Marker */
 .ghost-pin-marker {
 	background: transparent;

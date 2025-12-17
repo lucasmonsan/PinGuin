@@ -26,3 +26,4 @@ vite.config.ts.timestamp-*
 # Development notes (not for version control)
 docs/list_commits.txt
 docs/PROJETO_DEFINITIVO.md
+*COPY.md
