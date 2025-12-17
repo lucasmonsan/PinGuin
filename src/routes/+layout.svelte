@@ -10,7 +10,10 @@
 	import Map from '$lib/components/map/Map.svelte';
 	import ToastContainer from '$lib/components/toast/ToastContainer.svelte';
 	import Splash from '$lib/components/splash/Splash.svelte';
+	import BottomSheet from '$lib/components/bottomSheet/BottomSheet.svelte';
 	import { mapState } from '$lib/components/map/map.svelte';
+	import { bottomSheetState } from '$lib/stores/bottomSheet.svelte';
+	import { PinsService } from '$lib/services/pins.service';
 	import '../app.css';
 	import Main from '$lib/components/layout/Main.svelte';
 
@@ -52,16 +55,29 @@
 		}
 	});
 
-	// Sincronizar query params com estado da aplicação
+	// Sincronizar query params com estado do BottomSheet
 	$effect(() => {
 		const pinId = page.url.searchParams.get('pin');
 		const expanded = page.url.searchParams.get('expanded') === 'true';
 		const showReview = page.url.searchParams.get('review') === 'true';
 		
-		// TODO: Integrar com BottomSheet quando implementado (COMMIT 6)
-		// Por enquanto, apenas monitora os parâmetros da URL
-		if (pinId) {
-			console.log('[Navigation] Pin opened:', pinId, { expanded, showReview });
+		if (pinId && pinId !== bottomSheetState.pin?.id) {
+			// Carregar pin e abrir BottomSheet
+			PinsService.getPinById(pinId, authState.user?.id).then(pin => {
+				if (pin) {
+					bottomSheetState.open(pin, { expanded, showReviewForm: showReview });
+				} else {
+					// Pin não encontrado: limpar URL
+					navigationService.closeBottomSheet();
+				}
+			});
+		} else if (!pinId && bottomSheetState.pin) {
+			// URL não tem pin mas BottomSheet está aberto: fechar
+			bottomSheetState.close();
+		} else if (pinId && bottomSheetState.pin) {
+			// Apenas atualizar estado se já está aberto
+			bottomSheetState.expanded = expanded;
+			bottomSheetState.showReviewForm = showReview;
 		}
 	});
 
@@ -95,6 +111,7 @@
 <Splash show={showSplash} />
 <ToastContainer />
 <Map />
+<BottomSheet />
 
 {#if showOverlay}
 	<button class="overlay" onclick={handleOverlayClick} transition:fade aria-label="Fechar"></button>

@@ -27,7 +27,13 @@ export const ptBR: I18nDictionary = {
     cancel: 'Cancelar',
     delete: 'Deletar',
     edit: 'Editar',
-    upload: 'Enviar Foto'
+    upload: 'Enviar Foto',
+    close: 'Fechar'
+  },
+  pin: {
+    reviews: 'avaliações',
+    reviewsTitle: 'Avaliações',
+    noReviews: 'Nenhuma avaliação ainda. Seja o primeiro!'
   },
   profile: {
     theme: {

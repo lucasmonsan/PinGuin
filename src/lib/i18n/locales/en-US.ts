@@ -27,7 +27,13 @@ export const enUS: I18nDictionary = {
     cancel: 'Cancel',
     delete: 'Delete',
     edit: 'Edit',
-    upload: 'Upload Photo'
+    upload: 'Upload Photo',
+    close: 'Close'
+  },
+  pin: {
+    reviews: 'reviews',
+    reviewsTitle: 'Reviews',
+    noReviews: 'No reviews yet. Be the first!'
   },
   profile: {
     theme: {

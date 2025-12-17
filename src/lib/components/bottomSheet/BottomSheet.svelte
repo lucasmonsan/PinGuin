@@ -1,0 +1,364 @@
+<script lang="ts">
+	import { fly } from 'svelte/transition';
+	import { elasticOut } from 'svelte/easing';
+	import { X, ChevronUp, ChevronDown, MapPin, Star } from 'lucide-svelte';
+	import { navigationService } from '$lib/services/navigation.service';
+	import { bottomSheetState } from '$lib/stores/bottomSheet.svelte';
+	import { haptics } from '$lib/utils/haptics';
+	import { i18n } from '$lib/i18n/i18n.svelte';
+
+	let startY = $state(0);
+	let currentY = $state(0);
+	let isDragging = $state(false);
+	let sheetElement: HTMLDivElement;
+
+	const DRAG_THRESHOLD = 100; // pixels para confirmar ação
+	const COLLAPSED_HEIGHT = 30; // vh
+	const EXPANDED_HEIGHT = 80; // vh
+
+	function handleTouchStart(e: TouchEvent) {
+		startY = e.touches[0].clientY;
+		isDragging = true;
+	}
+
+	function handleTouchMove(e: TouchEvent) {
+		if (!isDragging) return;
+		currentY = e.touches[0].clientY;
+	}
+
+	function handleTouchEnd() {
+		if (!isDragging) return;
+		
+		const deltaY = currentY - startY;
+		isDragging = false;
+
+		// Swipe down
+		if (deltaY > DRAG_THRESHOLD) {
+			haptics.light();
+			if (bottomSheetState.expanded) {
+				navigationService.collapseBottomSheet();
+			} else {
+				navigationService.closeBottomSheet();
+			}
+		}
+		// Swipe up
+		else if (deltaY < -DRAG_THRESHOLD && !bottomSheetState.expanded) {
+			haptics.light();
+			navigationService.expandBottomSheet();
+		}
+
+		startY = 0;
+		currentY = 0;
+	}
+
+	function handleExpand() {
+		haptics.medium();
+		navigationService.expandBottomSheet();
+	}
+
+	function handleCollapse() {
+		haptics.light();
+		navigationService.collapseBottomSheet();
+	}
+
+	function handleClose() {
+		haptics.medium();
+		navigationService.closeBottomSheet();
+	}
+
+	function handleEscape(e: KeyboardEvent) {
+		if (e.key === 'Escape') {
+			handleClose();
+		}
+	}
+
+	$effect(() => {
+		if (bottomSheetState.pin) {
+			window.addEventListener('keydown', handleEscape);
+			return () => {
+				window.removeEventListener('keydown', handleEscape);
+			};
+		}
+	});
+</script>
+
+{#if bottomSheetState.pin}
+	<div
+		bind:this={sheetElement}
+		class="bottom-sheet"
+		class:expanded={bottomSheetState.expanded}
+		ontouchstart={handleTouchStart}
+		ontouchmove={handleTouchMove}
+		ontouchend={handleTouchEnd}
+		role="dialog"
+		aria-modal="true"
+		aria-label="Detalhes do local"
+		transition:fly={{ y: 500, duration: 400, easing: elasticOut }}
+	>
+		<!-- Handle visual -->
+		<div class="handle"></div>
+
+		<!-- Header -->
+		<header>
+			<button class="close-button" onclick={handleClose} aria-label={i18n.t.buttons.close || 'Fechar'}>
+				<X size={20} />
+			</button>
+
+			{#if bottomSheetState.expanded}
+				<button class="collapse-button" onclick={handleCollapse} aria-label="Colapsar">
+					<ChevronDown size={20} />
+				</button>
+			{:else}
+				<button class="expand-button" onclick={handleExpand} aria-label="Expandir">
+					<ChevronUp size={20} />
+				</button>
+			{/if}
+		</header>
+
+		<!-- Content -->
+		<div class="content" class:expanded={bottomSheetState.expanded}>
+			<div class="pin-info">
+				<!-- Category icon -->
+				{#if bottomSheetState.pin.category}
+					<div class="category-badge" style="background-color: {bottomSheetState.pin.category.color};">
+						{bottomSheetState.pin.category.icon}
+					</div>
+				{/if}
+
+				<h2>{bottomSheetState.pin.name}</h2>
+
+				{#if bottomSheetState.pin.category}
+					<p class="category-name">{i18n.t.categories[bottomSheetState.pin.category.name] || bottomSheetState.pin.category.name}</p>
+				{/if}
+
+				{#if bottomSheetState.pin.average_rating > 0}
+					<div class="rating">
+						<Star size={16} fill="currentColor" />
+						<span>{bottomSheetState.pin.average_rating.toFixed(1)}</span>
+						<span class="reviews-count">({bottomSheetState.pin.reviews?.length || 0} {i18n.t.pin?.reviews || 'avaliações'})</span>
+					</div>
+				{/if}
+
+				{#if bottomSheetState.pin.address}
+					<div class="address">
+						<MapPin size={16} />
+						<span>{bottomSheetState.pin.address}</span>
+					</div>
+				{/if}
+
+				{#if bottomSheetState.pin.description}
+					<p class="description">{bottomSheetState.pin.description}</p>
+				{/if}
+			</div>
+
+			{#if bottomSheetState.expanded}
+				<div class="expanded-content">
+					<!-- Photos -->
+					{#if bottomSheetState.pin.photos && bottomSheetState.pin.photos.length > 0}
+						<div class="photos-gallery">
+							{#each bottomSheetState.pin.photos as photo}
+								<img src={photo} alt="" />
+							{/each}
+						</div>
+					{/if}
+
+					<!-- Reviews section (placeholder for COMMIT 7) -->
+					<div class="reviews-section">
+						<h3>{i18n.t.pin?.reviewsTitle || 'Avaliações'}</h3>
+						<p class="placeholder">{i18n.t.pin?.noReviews || 'Nenhuma avaliação ainda. Seja o primeiro!'}</p>
+					</div>
+				</div>
+			{/if}
+		</div>
+	</div>
+{/if}
+
+<style>
+	.bottom-sheet {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		z-index: var(--z-modal);
+		background: var(--surface);
+		border-radius: var(--radius-out) var(--radius-out) 0 0;
+		box-shadow: var(--shadow-lg);
+		height: 30vh;
+		display: flex;
+		flex-direction: column;
+		transition: height 0.3s ease-out;
+		max-width: 600px;
+		margin: 0 auto;
+	}
+
+	.bottom-sheet.expanded {
+		height: 80vh;
+	}
+
+	.handle {
+		width: 40px;
+		height: 6px;
+		background: var(--border-color);
+		border-radius: 3px;
+		margin: var(--xs) auto 0;
+		flex-shrink: 0;
+	}
+
+	header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: var(--xs) var(--md);
+		flex-shrink: 0;
+	}
+
+	header button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: var(--xl);
+		height: var(--xl);
+		padding: 0;
+		background: transparent;
+		border: none;
+		border-radius: var(--radius-in);
+		cursor: pointer;
+		color: var(--text-secondary);
+		transition: all var(--fast);
+	}
+
+	header button:hover {
+		background: var(--bg);
+		color: var(--text-primary);
+	}
+
+	.content {
+		flex: 1;
+		overflow-y: auto;
+		padding: 0 var(--md) var(--md);
+		scrollbar-width: thin;
+		scrollbar-color: var(--border-color) transparent;
+	}
+
+	.content::-webkit-scrollbar {
+		width: 4px;
+	}
+
+	.content::-webkit-scrollbar-thumb {
+		background: var(--border-color);
+		border-radius: 4px;
+	}
+
+	.pin-info {
+		display: flex;
+		flex-direction: column;
+		gap: var(--xs);
+	}
+
+	.category-badge {
+		width: 48px;
+		height: 48px;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: var(--xl);
+		border: 3px solid var(--surface);
+		box-shadow: var(--shadow-md);
+	}
+
+	h2 {
+		font-size: var(--lg);
+		font-weight: 700;
+		color: var(--text-primary);
+		margin: 0;
+	}
+
+	.category-name {
+		font-size: var(--sm);
+		color: var(--text-secondary);
+		margin: 0;
+	}
+
+	.rating {
+		display: flex;
+		align-items: center;
+		gap: var(--xxs);
+		color: var(--warning);
+		font-size: var(--sm);
+		font-weight: 600;
+	}
+
+	.reviews-count {
+		color: var(--text-secondary);
+		font-weight: 400;
+	}
+
+	.address {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--xxs);
+		color: var(--text-secondary);
+		font-size: var(--sm);
+	}
+
+	.description {
+		font-size: var(--sm);
+		color: var(--text-primary);
+		line-height: 1.5;
+		margin: var(--xs) 0 0;
+	}
+
+	.expanded-content {
+		display: flex;
+		flex-direction: column;
+		gap: var(--md);
+		margin-top: var(--md);
+		padding-top: var(--md);
+		border-top: 1px solid var(--border-color);
+	}
+
+	.photos-gallery {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+		gap: var(--xs);
+	}
+
+	.photos-gallery img {
+		width: 100%;
+		height: 120px;
+		object-fit: cover;
+		border-radius: var(--radius-in);
+	}
+
+	.reviews-section h3 {
+		font-size: var(--md);
+		font-weight: 600;
+		color: var(--text-primary);
+		margin: 0 0 var(--xs);
+	}
+
+	.placeholder {
+		font-size: var(--sm);
+		color: var(--text-secondary);
+		text-align: center;
+		padding: var(--lg) 0;
+		margin: 0;
+	}
+
+	@media (min-width: 768px) {
+		.bottom-sheet {
+			left: var(--xs);
+			right: auto;
+			width: 400px;
+			border-radius: var(--radius-out);
+			height: auto;
+			max-height: 80vh;
+		}
+
+		.bottom-sheet.expanded {
+			height: auto;
+		}
+	}
+</style>
+
