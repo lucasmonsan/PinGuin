@@ -67,12 +67,7 @@
 			<label class="section-label">{i18n.t.profile.theme.title}</label>
 			<div class="theme-toggle">
 				{#each themes as theme}
-					<button
-						class="theme-button"
-						class:active={themeState.value === theme.value}
-						onclick={() => handleThemeSelect(theme.value)}
-						aria-label={theme.label}
-					>
+					<button class="theme-button" class:active={themeState.value === theme.value} onclick={() => handleThemeSelect(theme.value)} aria-label={theme.label}>
 						<svelte:component this={theme.icon} size={18} />
 					</button>
 				{/each}
@@ -83,13 +78,8 @@
 			<label class="section-label">{i18n.t.profile.language.title}</label>
 			<div class="language-toggle">
 				{#each languages as lang}
-					<button
-						class="language-button"
-						class:active={i18n.locale === lang.value}
-						onclick={() => handleLanguageSelect(lang.value)}
-						aria-label={lang.label}
-					>
-						{lang.flag} {lang.label}
+					<button class="language-button" class:active={i18n.locale === lang.value} onclick={() => handleLanguageSelect(lang.value)} aria-label={lang.label}>
+						{lang.flag}
 					</button>
 				{/each}
 			</div>
@@ -172,6 +162,7 @@
 
 	.settings-row {
 		display: flex;
+		flex-direction: row;
 		align-items: center;
 		justify-content: space-between;
 		gap: var(--sm);
@@ -192,7 +183,7 @@
 	.language-toggle {
 		display: flex;
 		gap: var(--xxs);
-		background: var(--bg);
+		background: transparent;
 		border-radius: var(--radius-md);
 		padding: 2px;
 	}
@@ -207,7 +198,7 @@
 		padding: var(--xxs) var(--xs);
 		background: transparent;
 		border: none;
-		border-radius: var(--radius-sm);
+		border-radius: var(--radius-in);
 		cursor: pointer;
 		font-size: var(--sm);
 		font-weight: 500;
@@ -293,7 +284,7 @@
 
 	.login {
 		background: var(--brand-primary);
-		color: var(--surface);
+		color: #fff;
 
 		&:hover {
 			background: var(--brand-secondary);
@@ -301,7 +292,7 @@
 	}
 
 	.login .icon-wrapper {
-		color: var(--surface);
+		color: #fff;
 	}
 
 	.logout {

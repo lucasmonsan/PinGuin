@@ -7,15 +7,30 @@
 	import SearchHints from '$lib/components/search/SearchHints.svelte';
 	import SearchResults from '$lib/components/search/SearchResults.svelte';
 	import SearchHistory from '$lib/components/search/SearchHistory.svelte';
-	import { Locate, User } from 'lucide-svelte';
+	import { Locate, User, Loader2 } from 'lucide-svelte';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { authState } from '$lib/stores/auth.svelte';
+	import { toast } from '$lib/components/toast/toast.svelte';
 	import ProfileMenu from '../profile/ProfileMenu.svelte';
+	
+	async function handleLocateUser() {
+		if (isLocating) return;
+		isLocating = true;
+		
+		try {
+			await mapState.locateUser();
+		} catch (error) {
+			// Erro já tratado no mapState
+		} finally {
+			isLocating = false;
+		}
+	}
 
-	let showHistory = $derived(searchState.focused && searchState.query === '' && searchState.history.length > 0 && searchState.results.length === 0 && !searchState.hasSearched);
+	let showHistory = $derived(searchState.focused && searchState.query === '' && searchState.history.length > 0 && searchState.results.length === 0);
 	let showHints = $derived(searchState.focused && searchState.query === '' && searchState.history.length === 0 && searchState.results.length === 0 && !searchState.hasSearched);
 	let showResults = $derived(searchState.results.length > 0 || (searchState.hasSearched && searchState.focused));
 	let isMenuOpen = $state(false);
+	let isLocating = $state(false);
 </script>
 
 <footer transition:slideUp={{ duration: 300 }}>
@@ -38,8 +53,14 @@
 			{/if}
 		</Button>
 		<SearchBar />
-		<Button variant="icon" radius="out" onclick={() => mapState.locateUser()} aria-label={i18n.t.buttons.locate}>
-			<Locate size={20} />
+		<Button variant="icon" radius="out" onclick={handleLocateUser} disabled={isLocating} aria-label={i18n.t.buttons.locate}>
+			{#if isLocating}
+				<div class="animate-spin">
+					<Loader2 size={20} />
+				</div>
+			{:else}
+				<Locate size={20} />
+			{/if}
 		</Button>
 	</nav>
 </footer>
