@@ -7,12 +7,9 @@
 	import SearchHints from '$lib/components/search/SearchHints.svelte';
 	import SearchResults from '$lib/components/search/SearchResults.svelte';
 	import SearchHistory from '$lib/components/search/SearchHistory.svelte';
-	import { Navigation, User, Plus } from 'lucide-svelte';
+	import { Navigation, User } from 'lucide-svelte';
 	import { i18n } from '$lib/i18n/i18n.svelte';
-	import { authState } from '$lib/stores/auth.svelte';
 	import ProfileMenu from '../profile/ProfileMenu.svelte';
-	import { goto } from '$app/navigation';
-	import { toast } from '$lib/components/toast/toast.svelte';
 
 	let showHistory = $derived(
 		searchState.focused && 
@@ -28,14 +25,6 @@
 	);
 	let showResults = $derived(searchState.results.length > 0 || searchState.hasSearched);
 	let isMenuOpen = $state(false);
-
-	function handleAddPin() {
-		if (!authState.user) {
-			toast.error(i18n.t.errors.loginRequired);
-			return;
-		}
-		goto('/pins/new');
-	}
 </script>
 
 <footer transition:slideUp={{ duration: 300 }}>
@@ -54,9 +43,6 @@
 			<User size={20} />
 		</Button>
 		<SearchBar />
-		<Button variant="icon" radius="out" onclick={handleAddPin} aria-label={i18n.t.buttons.addPin || 'Adicionar Pin'}>
-			<Plus size={20} />
-		</Button>
 		<Button variant="icon" radius="out" onclick={() => mapState.locateUser()} aria-label={i18n.t.buttons.locate}>
 			<Navigation size={20} />
 		</Button>
