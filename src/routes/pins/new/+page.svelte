@@ -338,7 +338,7 @@
 				<!-- Actions -->
 				<!-- Actions -->
 				<div class="form-actions">
-					<Button type="button" variant="ghost" onclick={() => goto('/')}>
+					<Button type="button" variant="outline" onclick={() => goto('/')}>
 						{i18n.t.buttons.cancel}
 					</Button>
 					<Button type="submit" variant="primary" disabled={loading}>

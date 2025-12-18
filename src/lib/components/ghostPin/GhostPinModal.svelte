@@ -130,7 +130,7 @@
 				{/if}
 
 				<div class="actions">
-					<Button variant="ghost" onclick={handleCancel}>{i18n.t.buttons.cancel}</Button>
+					<Button variant="outline" onclick={handleCancel}>{i18n.t.buttons.cancel}</Button>
 					<Button variant="primary" onclick={handleCreateNew} disabled={ghostPinState.loadingAddress || !ghostPinState.address}>
 						<Plus size={18} />
 						{i18n.t.ghostPin.create}
