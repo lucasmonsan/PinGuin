@@ -133,6 +133,7 @@
 			padding: 0;
 			min-width: var(--xxxl);
 			min-height: var(--xxxl);
+			overflow: hidden; /* Prevent pseudo-elements from affecting size */
 		}
 
 		&.icon:hover:not(:disabled):not(.invisible) {

@@ -61,24 +61,15 @@
 			{#if authState.user?.user_metadata?.avatar_url}
 				<img src={authState.user.user_metadata.avatar_url} alt={authState.user.email || 'User'} class="user-avatar" />
 			{:else}
-				<User size={20} />
+				<User size="var(--md)" />
 			{/if}
 		</Button>
 		<SearchBar />
-		<Button
-			variant="icon"
-			radius="out"
-			onclick={handleLocateUser}
-			disabled={isLocating}
-			aria-label={i18n.t.buttons.locate}
-			class="gps-button {isLocating ? 'locating' : ''} {locatedRecently ? 'located' : ''}"
-		>
+		<Button variant="icon" radius="out" onclick={handleLocateUser} disabled={isLocating} aria-label={i18n.t.buttons.locate}>
 			{#if isLocating}
-				<div class="animate-spin">
-					<Loader2 size={20} />
-				</div>
+				<Loader2 size="var(--md)" class="animate-spin" />
 			{:else}
-				<Locate size={20} />
+				<Locate size="var(--md)" />
 			{/if}
 		</Button>
 	</nav>
@@ -113,15 +104,33 @@
 	}
 
 	.user-avatar {
-		width: 20px;
-		height: 20px;
+		width: var(--md);
+		height: var(--md);
 		border-radius: 50%;
 		object-fit: cover;
+	}
+
+	/* Ensure all icon buttons in nav have consistent size */
+	:global(nav button[variant='icon']),
+	:global(nav button.icon) {
+		width: var(--xxxl) !important;
+		height: var(--xxxl) !important;
+		min-width: var(--xxxl) !important;
+		min-height: var(--xxxl) !important;
+		flex-shrink: 0;
+	}
+
+	/* Ensure all icons inside nav buttons have consistent size */
+	:global(nav button svg) {
+		width: var(--md) !important;
+		height: var(--md) !important;
+		flex-shrink: 0;
 	}
 
 	/* GPS Button feedback states */
 	:global(button.gps-button) {
 		border-radius: var(--radius-out) !important;
+		overflow: hidden !important; /* Prevent ::before from affecting layout */
 	}
 
 	:global(button.gps-button.locating) {
