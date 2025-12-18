@@ -71,31 +71,45 @@ class MapState {
     this.map.setView(coords, MAP_CONFIG.SEARCH_ZOOM);
   }
 
-  locateUser() {
-    if (!this.map) return;
+  locateUser(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (!this.map) {
+        reject(new Error('Map not initialized'));
+        return;
+      }
 
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          this.map!.flyTo([latitude, longitude], MAP_CONFIG.SEARCH_ZOOM);
-          toast.success(i18n.t.success.locationFound);
-        },
-        (error) => {
-          if (error.code === 1) {
-            toast.error(i18n.t.errors.locationDenied);
-          } else if (error.code === 2) {
-            toast.error(i18n.t.errors.locationUnavailable);
-          } else if (error.code === 3) {
-            toast.error(i18n.t.errors.locationTimeout);
-          } else {
-            toast.error(i18n.t.errors.locationUnavailable);
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            this.map!.flyTo([latitude, longitude], MAP_CONFIG.SEARCH_ZOOM);
+            toast.success(i18n.t.success.locationFound);
+            resolve();
+          },
+          (error) => {
+            console.error('Geolocation error:', error);
+            if (error.code === 1) {
+              toast.error(i18n.t.errors.locationDenied);
+            } else if (error.code === 2) {
+              toast.error(i18n.t.errors.locationUnavailable);
+            } else if (error.code === 3) {
+              toast.error(i18n.t.errors.locationTimeout);
+            } else {
+              toast.error(i18n.t.errors.locationUnavailable);
+            }
+            reject(error);
+          },
+          {
+            enableHighAccuracy: false,
+            timeout: 10000, // 10 seconds timeout
+            maximumAge: 30000 // Accept cached position up to 30 seconds old
           }
-        }
-      );
-    } else {
-      toast.error(i18n.t.errors.locationUnavailable);
-    }
+        );
+      } else {
+        toast.error(i18n.t.errors.locationUnavailable);
+        reject(new Error('Geolocation not available'));
+      }
+    });
   }
 
   selectLocation(feature: OSMFeature) {
