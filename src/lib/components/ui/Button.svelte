@@ -20,10 +20,10 @@
 	button {
 		--btn-bg: var(--surface);
 		--btn-color: var(--text-primary);
-		--btn-bg-hover: var(--surface-hover, #f5f5f5);
-		--btn-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+		--btn-border-width: 2px;
 
-		overflow: hidden;
+		position: relative;
+		overflow: visible;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -40,8 +40,7 @@
 		-webkit-tap-highlight-color: transparent;
 		background: var(--btn-bg);
 		color: var(--btn-color);
-		box-shadow: var(--btn-shadow);
-		transition: all 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+		transition: all 0.3s ease;
 
 		&.in {
 			border-radius: var(--radius-in);
@@ -51,54 +50,84 @@
 			border-radius: var(--radius-out);
 		}
 
-		/* Primary */
+		/* Focus Visible */
+		&:focus-visible {
+			outline: 2px solid var(--brand-primary);
+			outline-offset: 2px;
+		}
+
+		/* Primary - Gradient Border Effect */
 		&.primary {
-			--btn-bg: var(--brand-primary);
-			--btn-color: white;
-			--btn-bg-hover: var(--brand-secondary);
-			--btn-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+			background: linear-gradient(135deg, var(--brand-primary) 0%, transparent 50%);
+			background-color: color-mix(in srgb, var(--brand-primary) 20%, transparent);
+			color: white;
+			padding: calc(var(--xs) + var(--btn-border-width)) calc(var(--sm) + var(--btn-border-width));
+		}
+
+		&.primary::before {
+			content: '';
+			position: absolute;
+			inset: var(--btn-border-width);
+			background: var(--brand-primary);
+			border-radius: inherit;
+			z-index: -1;
 		}
 
 		&.primary:hover:not(:disabled) {
-			background: var(--btn-bg-hover);
-			box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+			background-color: color-mix(in srgb, var(--brand-primary) 70%, transparent);
+			box-shadow: 0 0 20px color-mix(in srgb, var(--brand-primary) 50%, transparent);
 		}
 
 		&.primary:active:not(:disabled) {
-			box-shadow: 0 1px 4px rgba(99, 102, 241, 0.3);
+			background-color: color-mix(in srgb, var(--brand-primary) 90%, transparent);
+			box-shadow: 0 0 10px color-mix(in srgb, var(--brand-primary) 30%, transparent);
 		}
 
-		/* Secondary */
+		/* Secondary - Subtle Gradient */
 		&.secondary {
-			--btn-bg: var(--bg-2);
-			--btn-color: var(--text-primary);
-			--btn-bg-hover: var(--bg);
-			--btn-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+			background: linear-gradient(135deg, color-mix(in srgb, var(--text-primary) 10%, transparent) 0%, transparent 50%);
+			background-color: var(--surface);
+			color: var(--text-primary);
+			box-shadow: var(--shadow-sm);
 		}
 
 		&.secondary:hover:not(:disabled) {
-			background: var(--btn-bg-hover);
-			box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+			background-color: var(--bg);
+			box-shadow: var(--shadow-md);
 		}
 
-		/* Outline */
+		&.secondary:active:not(:disabled) {
+			background-color: var(--bg);
+			box-shadow: var(--shadow-sm);
+		}
+
+		/* Outline - Gradient Border */
 		&.outline {
-			--btn-bg: transparent;
-			--btn-color: var(--text-primary);
-			--btn-shadow: none;
-			border: 2px solid var(--border-color);
+			background: transparent;
+			color: var(--text-primary);
+			border: var(--btn-border-width) solid transparent;
+			background-image: linear-gradient(var(--surface), var(--surface)), linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+			background-origin: border-box;
+			background-clip: padding-box, border-box;
 		}
 
 		&.outline:hover:not(:disabled) {
-			border-color: var(--brand-primary);
-			background: rgba(99, 102, 241, 0.05);
+			background-image:
+				linear-gradient(color-mix(in srgb, var(--brand-primary) 5%, var(--surface)), color-mix(in srgb, var(--brand-primary) 5%, var(--surface))),
+				linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+		}
+
+		&.outline:active:not(:disabled) {
+			background-image:
+				linear-gradient(color-mix(in srgb, var(--brand-primary) 10%, var(--surface)), color-mix(in srgb, var(--brand-primary) 10%, var(--surface))),
+				linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
 		}
 
 		/* Icon */
 		&.icon {
-			--btn-bg: var(--surface);
-			--btn-color: var(--text-primary);
-			--btn-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+			background: var(--surface);
+			color: var(--text-primary);
+			box-shadow: var(--shadow-sm);
 			width: var(--xxxl);
 			height: var(--xxxl);
 			padding: 0;
@@ -107,16 +136,17 @@
 		}
 
 		&.icon:hover:not(:disabled):not(.invisible) {
-			background: rgba(99, 102, 241, 0.1);
+			background: color-mix(in srgb, var(--brand-primary) 10%, var(--surface));
+		}
 
-			animation: buttonPulse 0.3s ease;
+		&.icon:active:not(:disabled):not(.invisible) {
+			background: color-mix(in srgb, var(--brand-primary) 15%, var(--surface));
 		}
 
 		/* Ghost */
 		&.ghost {
-			--btn-bg: transparent;
-			--btn-color: var(--text-primary);
-			--btn-shadow: none;
+			background: transparent;
+			color: var(--text-primary);
 			padding: 0;
 			border-radius: 0;
 			min-width: auto;
@@ -124,15 +154,18 @@
 		}
 
 		&.ghost:hover:not(:disabled):not(.invisible) {
-			background: rgba(0, 0, 0, 0.05);
+			background: color-mix(in srgb, var(--text-primary) 5%, transparent);
 			border-radius: var(--radius-in);
 		}
 
-		/* Invisible - sem hover visível */
+		&.ghost:active:not(:disabled):not(.invisible) {
+			background: color-mix(in srgb, var(--text-primary) 10%, transparent);
+		}
+
+		/* Invisible */
 		&.invisible,
 		&[data-invisible='true'] {
-			--btn-bg: transparent;
-			--btn-shadow: none;
+			background: transparent;
 		}
 
 		&.invisible:hover:not(:disabled),
@@ -141,27 +174,22 @@
 			box-shadow: none !important;
 		}
 
-		/* Default hover */
+		/* Default */
 		&:not(.ghost):not(.icon):not(.primary):not(.secondary):not(.outline):hover:not(:disabled):not(.invisible) {
-			box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
-			background: rgba(99, 102, 241, 0.05);
+			box-shadow: var(--shadow-md);
+			background: color-mix(in srgb, var(--brand-primary) 5%, var(--surface));
 		}
 
+		&:not(.ghost):not(.icon):not(.primary):not(.secondary):not(.outline):active:not(:disabled):not(.invisible) {
+			box-shadow: var(--shadow-sm);
+			background: color-mix(in srgb, var(--brand-primary) 8%, var(--surface));
+		}
+
+		/* Disabled */
 		&:disabled {
 			opacity: 0.5;
 			cursor: not-allowed;
-		}
-	}
-
-	@keyframes buttonPulse {
-		0% {
-			box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
-		}
-		70% {
-			box-shadow: 0 0 0 6px rgba(99, 102, 241, 0);
-		}
-		100% {
-			box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+			filter: grayscale(0.3);
 		}
 	}
 </style>
