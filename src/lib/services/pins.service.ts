@@ -1,12 +1,10 @@
 import { supabase } from './supabase';
-import { ErrorHandler, ErrorCategory } from '$lib/utils/errorHandler';
+import { ErrorHandler } from '$lib/utils/errorHandler';
 import { validation } from '$lib/utils/validation';
 import type { Pin, PinInsert, PinUpdate, PinWithCategory, PinWithDetails } from '$lib/types/database.types';
 
 export class PinsService {
-	/**
-	 * Get all public pins or user's pins
-	 */
+
 	static async getPins(userId?: string): Promise<PinWithCategory[]> {
 		let query = supabase
 			.from('map_pins')
@@ -28,9 +26,7 @@ export class PinsService {
 		return data as PinWithCategory[];
 	}
 
-	/**
-	 * Get a single pin by ID with details
-	 */
+
 	static async getPinById(pinId: string, userId?: string): Promise<PinWithDetails | null> {
 		const { data: pin, error: pinError } = await supabase
 			.from('map_pins')
@@ -43,20 +39,18 @@ export class PinsService {
 
 		if (pinError || !pin) return null;
 
-		// Get reviews
 		const { data: reviews } = await supabase
 			.from('map_reviews')
 			.select('*')
 			.eq('pin_id', pinId)
 			.order('created_at', { ascending: false });
 
-		// Get favorites count
 		const { count: favoritesCount } = await supabase
 			.from('map_favorites')
 			.select('*', { count: 'exact', head: true })
 			.eq('pin_id', pinId);
 
-		// Check if user favorited
+
 		let isFavorited = false;
 		if (userId) {
 			const { data: favorite } = await supabase
@@ -69,7 +63,6 @@ export class PinsService {
 			isFavorited = !!favorite;
 		}
 
-		// Calculate average rating
 		const ratings = reviews?.map(r => r.rating) || [];
 		const averageRating = ratings.length > 0
 			? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
@@ -84,9 +77,6 @@ export class PinsService {
 		} as PinWithDetails;
 	}
 
-	/**
-	 * Get pins by location (within bounds)
-	 */
 	static async getPinsByBounds(
 		minLat: number,
 		maxLat: number,
@@ -117,9 +107,6 @@ export class PinsService {
 		return data as PinWithCategory[];
 	}
 
-	/**
-	 * Get user's pins
-	 */
 	static async getUserPins(userId: string): Promise<PinWithCategory[]> {
 		const { data, error } = await supabase
 			.from('map_pins')
@@ -134,11 +121,7 @@ export class PinsService {
 		return data as PinWithCategory[];
 	}
 
-	/**
-	 * Create a new pin
-	 */
 	static async createPin(pin: PinInsert): Promise<Pin> {
-		// Validação de dados
 		if (!validation.isValidCoordinates(pin.latitude, pin.longitude)) {
 			throw new Error('Coordenadas inválidas');
 		}
@@ -159,7 +142,7 @@ export class PinsService {
 			throw new Error('ID de categoria inválido');
 		}
 
-		// Sanitizar strings contra XSS
+
 		const sanitizedPin: PinInsert = {
 			...pin,
 			name: validation.sanitizeHTML(pin.name.trim()),
@@ -181,16 +164,11 @@ export class PinsService {
 		}
 	}
 
-	/**
-	 * Update a pin
-	 */
 	static async updatePin(pinId: string, updates: PinUpdate): Promise<Pin> {
-		// Validar UUID
 		if (!validation.isValidUUID(pinId)) {
 			throw new Error('ID de pin inválido');
 		}
 
-		// Validar campos se fornecidos
 		if (updates.name !== undefined && !validation.isValidPinName(updates.name)) {
 			throw new Error('Nome do local deve ter entre 3 e 255 caracteres');
 		}
@@ -205,7 +183,6 @@ export class PinsService {
 			}
 		}
 
-		// Sanitizar strings contra XSS
 		const sanitizedUpdates: PinUpdate = { ...updates };
 		if (updates.name) {
 			sanitizedUpdates.name = validation.sanitizeHTML(updates.name.trim());
@@ -225,9 +202,6 @@ export class PinsService {
 		return data;
 	}
 
-	/**
-	 * Delete a pin
-	 */
 	static async deletePin(pinId: string): Promise<void> {
 		const { error } = await supabase
 			.from('map_pins')
@@ -237,11 +211,7 @@ export class PinsService {
 		if (error) throw error;
 	}
 
-	/**
-	 * Toggle favorite
-	 */
 	static async toggleFavorite(pinId: string, userId: string): Promise<boolean> {
-		// Check if already favorited
 		const { data: existing } = await supabase
 			.from('map_favorites')
 			.select('id')
@@ -250,7 +220,6 @@ export class PinsService {
 			.maybeSingle();
 
 		if (existing) {
-			// Remove favorite
 			const { error } = await supabase
 				.from('map_favorites')
 				.delete()
@@ -259,7 +228,6 @@ export class PinsService {
 			if (error) throw error;
 			return false;
 		} else {
-			// Add favorite
 			const { error } = await supabase
 				.from('map_favorites')
 				.insert({ pin_id: pinId, user_id: userId });
@@ -269,9 +237,6 @@ export class PinsService {
 		}
 	}
 
-	/**
-	 * Get user's favorites
-	 */
 	static async getUserFavorites(userId: string): Promise<PinWithCategory[]> {
 		const { data, error } = await supabase
 			.from('map_favorites')
@@ -288,9 +253,6 @@ export class PinsService {
 		return (data?.map(f => f.pin).filter(Boolean) || []) as PinWithCategory[];
 	}
 
-	/**
-	 * Upload pin photo (client-side - sends to API)
-	 */
 	static async uploadPhoto(
 		originalFile: File,
 		thumbnailFile: File,
@@ -314,9 +276,6 @@ export class PinsService {
 		return await response.json();
 	}
 
-	/**
-	 * Delete pin photo
-	 */
 	static async deletePhoto(photoUrl: string): Promise<void> {
 		// This would need an API endpoint to delete from R2
 		// For now, we'll just handle it server-side when deleting the pin
@@ -324,9 +283,6 @@ export class PinsService {
 
 	// ========== Reviews ==========
 
-	/**
-	 * Create review for a pin
-	 */
 	static async createReview(review: {
 		pin_id: string;
 		user_id: string;
@@ -334,7 +290,6 @@ export class PinsService {
 		comment?: string | null;
 		photos?: string[];
 	}): Promise<void> {
-		// Validação de dados
 		if (!validation.isValidUUID(review.pin_id)) {
 			throw new Error('ID de pin inválido');
 		}
@@ -351,13 +306,11 @@ export class PinsService {
 			throw new Error('Comentário deve ter entre 1 e 500 caracteres');
 		}
 
-		// Sanitizar comentário contra XSS
 		const sanitizedReview = {
 			...review,
 			comment: review.comment ? validation.sanitizeHTML(review.comment.trim()) : null
 		};
 
-		// Check if user already reviewed this pin
 		const { data: existing } = await supabase
 			.from('map_reviews')
 			.select('id')
@@ -374,9 +327,6 @@ export class PinsService {
 		if (error) throw error;
 	}
 
-	/**
-	 * Toggle review upvote
-	 */
 	static async toggleReviewUpvote(reviewId: string, userId: string): Promise<boolean> {
 		const { data: existing } = await supabase
 			.from('map_review_upvotes')
@@ -403,12 +353,7 @@ export class PinsService {
 		}
 	}
 
-	/**
-	 * Report review
-	 * TODO: Implementar quando tabela map_review_reports for criada
-	 */
 	static async reportReview(reviewId: string, userId: string): Promise<void> {
-		// Tabela não existe ainda no banco
 		throw new Error('Feature não implementada');
 	}
 }

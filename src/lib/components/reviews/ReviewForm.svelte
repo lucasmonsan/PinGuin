@@ -37,7 +37,6 @@
 			return;
 		}
 
-		// Validar cada arquivo
 		for (const file of Array.from(files)) {
 			const imageValidation = validation.isValidImage(file, 5);
 			if (!imageValidation.valid) {
@@ -101,20 +100,17 @@
 			return;
 		}
 
-		// Validar rating
 		if (!validation.isValidRating(rating)) {
 			toast.error('Selecione uma avaliação válida (1-5 estrelas)');
 			return;
 		}
 
-		// Validar comentário se fornecido
 		const trimmedComment = comment.trim();
 		if (trimmedComment && !validation.isValidComment(trimmedComment)) {
 			toast.error('Comentário deve ter entre 1 e 500 caracteres');
 			return;
 		}
 
-		// Sanitizar comentário contra XSS
 		const sanitizedComment = trimmedComment ? validation.sanitizeHTML(trimmedComment) : '';
 
 		// Rate limiting
@@ -122,7 +118,6 @@
 		const canProceed = await RateLimiter.check(rateLimitKey, RateLimitPresets.REVIEW_CREATION);
 		if (!canProceed) return;
 
-		// Validação de profanidade
 		if (sanitizedComment) {
 			const profanityValidation = ProfanityFilter.validateComment(sanitizedComment);
 			if (!profanityValidation.valid) {
@@ -229,9 +224,9 @@
 		</div>
 
 		<!-- Submit Button -->
-		<Button 
-			type="submit" 
-			variant="primary" 
+		<Button
+			type="submit"
+			variant="primary"
 			disabled={loading || uploading || rating === 0}
 			aria-busy={loading || uploading}
 			aria-label={loading ? 'Publicando avaliação' : uploading ? 'Enviando fotos' : 'Publicar avaliação'}

@@ -48,7 +48,6 @@
 			latitude = lat;
 			longitude = lng;
 
-			// Buscar endereço automaticamente
 			fetchAddress(parseFloat(lat), parseFloat(lng));
 		}
 
@@ -105,8 +104,7 @@
 
 		if (!files || files.length === 0) return;
 
-		// Validar cada arquivo
-		for (const file of Array.from(files)) {
+		for (const file of files) {
 			const imageValidation = validation.isValidImage(file, 5);
 			if (!imageValidation.valid) {
 				toast.error(imageValidation.error || 'Arquivo inválido');
@@ -163,27 +161,23 @@
 			return;
 		}
 
-		// Validar campos obrigatórios
 		const trimmedName = name.trim();
 		if (!trimmedName || !categoryId || !latitude || !longitude) {
 			toast.error('Preencha os campos obrigatórios (Título e Categoria)');
 			return;
 		}
 
-		// Validar nome
 		if (!validation.isValidPinName(trimmedName)) {
 			toast.error('Título do local deve ter entre 3 e 255 caracteres');
 			return;
 		}
 
-		// Validar descrição
 		const trimmedDescription = description.trim();
 		if (trimmedDescription && !validation.isValidDescription(trimmedDescription)) {
 			toast.error('Descrição muito longa (máximo 1000 caracteres)');
 			return;
 		}
 
-		// Validar coordenadas
 		const lat = parseFloat(latitude);
 		const lng = parseFloat(longitude);
 		if (!validation.isValidCoordinates(lat, lng)) {

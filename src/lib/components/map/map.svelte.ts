@@ -336,7 +336,6 @@ class MapState {
   private updateUserLocationMarker() {
     if (!this.map || !this.L || !this.userLocation) return;
 
-    // Remove marker antigo se existir
     if (this.userLocationMarker) {
       this.map.removeLayer(this.userLocationMarker);
     }
@@ -376,7 +375,6 @@ class MapState {
   private showGhostPin(lat: number, lng: number) {
     if (!this.map || !this.L) return;
 
-    // Remove ghost pin anterior se existir
     if (this.ghostPinMarker) {
       this.map.removeLayer(this.ghostPinMarker);
       this.ghostPinMarker = null;

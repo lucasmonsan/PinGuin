@@ -38,7 +38,6 @@ export class StorageService {
 
 			await s3Client.send(command);
 
-			// Return public URL
 			return `${PUBLIC_R2_PUBLIC_URL}/${path}`;
 		} catch (error) {
 			throw new Error('Failed to upload file');
@@ -92,14 +91,11 @@ export class StorageService {
 	 */
 	static async deletePinPhoto(photoUrl: string): Promise<void> {
 		try {
-			// Extract path from URL
 			const url = new URL(photoUrl);
 			const path = url.pathname.substring(1); // Remove leading slash
 
-			// Delete original
 			await this.deleteFile(path);
 
-			// Delete thumbnail if exists
 			const thumbnailPath = path.replace(/\.(jpg|jpeg|png|webp)$/, '_thumb.$1');
 			try {
 				await this.deleteFile(thumbnailPath);

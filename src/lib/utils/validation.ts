@@ -4,7 +4,6 @@ import DOMPurify from 'isomorphic-dompurify';
  * Validação robusta de inputs para segurança e integridade de dados
  */
 export const validation = {
-	// ==================== COORDENADAS ====================
 	isValidLat(lat: number): boolean {
 		return typeof lat === 'number' && !isNaN(lat) && lat >= -90 && lat <= 90;
 	},
@@ -17,7 +16,6 @@ export const validation = {
 		return this.isValidLat(lat) && this.isValidLng(lng);
 	},
 
-	// ==================== STRINGS ====================
 	sanitizeHTML(dirty: string): string {
 		return DOMPurify.sanitize(dirty, { ALLOWED_TAGS: [] });
 	},
@@ -40,21 +38,18 @@ export const validation = {
 		return trimmed.length >= 1 && trimmed.length <= 500;
 	},
 
-	// ==================== EMAIL ====================
 	isValidEmail(email: string): boolean {
 		if (typeof email !== 'string') return false;
 		const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 		return regex.test(email.trim());
 	},
 
-	// ==================== UUID ====================
 	isValidUUID(uuid: string): boolean {
 		if (typeof uuid !== 'string') return false;
 		const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 		return regex.test(uuid);
 	},
 
-	// ==================== RATING ====================
 	isValidRating(rating: number): boolean {
 		return (
 			typeof rating === 'number' &&
@@ -65,7 +60,6 @@ export const validation = {
 		);
 	},
 
-	// ==================== IMAGENS ====================
 	isValidImageType(file: File): boolean {
 		const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 		return validTypes.includes(file.type);
@@ -85,7 +79,6 @@ export const validation = {
 		return { valid: true };
 	},
 
-	// ==================== URL ====================
 	isValidURL(url: string): boolean {
 		try {
 			new URL(url);
@@ -95,7 +88,6 @@ export const validation = {
 		}
 	},
 
-	// ==================== PHONE ====================
 	isValidPhone(phone: string): boolean {
 		if (typeof phone !== 'string') return false;
 		// Aceita formatos: +55 11 99999-9999, (11) 99999-9999, 11999999999

@@ -51,7 +51,6 @@
 		}
 	});
 
-	// Sincronizar showReviewForm com URL
 	$effect(() => {
 		showReviewForm = bottomSheetState.showReviewForm;
 	});

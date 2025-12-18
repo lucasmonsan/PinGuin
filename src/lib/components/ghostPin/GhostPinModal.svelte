@@ -29,7 +29,6 @@
 	});
 
 	function handleCreateNew() {
-		// Validar coordenadas antes de prosseguir
 		if (!validation.isValidCoordinates(ghostPinState.latitude, ghostPinState.longitude)) {
 			toast.error(i18n.t.errors.invalidCoordinates || 'Coordenadas inválidas');
 			ghostPinState.clear();
