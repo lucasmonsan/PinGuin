@@ -1,7 +1,7 @@
 import { browser } from '$app/environment';
 
 class ThemeState {
-  current = $state('auto');
+  current = $state('dark');
   private initialized = false;
 
   private ensureInitialized() {
@@ -11,6 +11,10 @@ class ThemeState {
       if (saved) {
         this.current = saved;
         this.apply(saved);
+      } else {
+        this.current = 'dark';
+        localStorage.setItem('theme', 'dark');
+        this.apply('dark');
       }
     }
   }
