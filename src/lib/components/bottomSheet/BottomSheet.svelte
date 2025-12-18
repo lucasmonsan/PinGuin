@@ -32,7 +32,6 @@
 	const COLLAPSED_HEIGHT = 30; // vh
 	const EXPANDED_HEIGHT = 80; // vh
 
-	// Verificar se pin está favoritado e simular loading inicial
 	$effect(() => {
 		if (bottomSheetState.pin) {
 			// Simular pequeno delay para skeleton (somente se não tem dados de reviews ainda)
@@ -528,7 +527,6 @@
 		grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
 		gap: var(--xs);
 	}
-
 
 	.reviews-section {
 		display: flex;

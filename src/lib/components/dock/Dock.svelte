@@ -21,7 +21,6 @@
 		try {
 			await mapState.locateUser();
 			locatedRecently = true;
-			// Remove indicador após 2 segundos
 			setTimeout(() => {
 				locatedRecently = false;
 			}, 2000);
