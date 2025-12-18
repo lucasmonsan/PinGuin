@@ -1,0 +1,23 @@
+/* Performance optimizations for Leaflet map */
+.leaflet-container {
+	will-change: transform;
+}
+
+.leaflet-tile-container {
+	will-change: transform, opacity;
+}
+
+.leaflet-zoom-anim .leaflet-zoom-animated {
+	will-change: transform;
+}
+
+/* Disable GPU-heavy animations on Firefox */
+@-moz-document url-prefix() {
+	.leaflet-fade-anim .leaflet-tile {
+		transition: none !important;
+	}
+
+	.leaflet-zoom-anim .leaflet-zoom-animated {
+		transition-duration: 0.15s !important;
+	}
+}
