@@ -35,10 +35,10 @@
 	const CATEGORIES_PER_ROW = 5;
 
 	onMount(async () => {
-		// if (!authState.user) {
-		// 	goto('/');
-		// 	return;
-		// }
+		if (!authState.user) {
+			goto('/');
+			return;
+		}
 
 		// Preencher coordenadas do query params (ghost pin)
 		const lat = $page.url.searchParams.get('lat');
@@ -157,10 +157,10 @@
 	async function handleSubmit(event: Event) {
 		event.preventDefault();
 
-		// if (!authState.user) {
-		// 	toast.error(i18n.t.errors.loginRequired);
-		// 	return;
-		// }
+		if (!authState.user) {
+			toast.error(i18n.t.errors.loginRequired);
+			return;
+		}
 
 		// Validar campos obrigatórios
 		const trimmedName = name.trim();
@@ -194,7 +194,7 @@
 
 		try {
 			await PinsService.createPin({
-				user_id: authState.user?.id || crypto.randomUUID(), // Mock ID for testing
+				user_id: authState.user.id,
 				name: trimmedName,
 				description: trimmedDescription || null,
 				category_id: categoryId,

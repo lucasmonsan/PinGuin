@@ -35,11 +35,11 @@
 			ghostPinState.clear();
 			return;
 		}
-		// if (!authState.user) {
-		// 	toast.error(i18n.t.errors.loginRequired);
-		// 	ghostPinState.clear();
-		// 	return;
-		// }
+		if (!authState.user) {
+			toast.error(i18n.t.errors.loginRequired);
+			ghostPinState.clear();
+			return;
+		}
 
 		// Passa coords via query params
 		const params = new URLSearchParams({
