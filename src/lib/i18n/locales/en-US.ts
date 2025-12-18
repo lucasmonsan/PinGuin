@@ -7,7 +7,12 @@ export const enUS: I18nDictionary = {
     closeDialog: 'Close dialog',
     openMenu: 'Open menu',
     toggleTheme: 'Toggle theme',
-    selectLanguage: 'Select language'
+    selectLanguage: 'Select language',
+    processing: 'Processing',
+    addToFavorites: 'Add to favorites',
+    removeFromFavorites: 'Remove from favorites',
+    helpful: 'Helpful',
+    loadingResults: 'Loading results'
   },
   splash: {
     appName: 'Monsan Map',
@@ -107,7 +112,11 @@ export const enUS: I18nDictionary = {
     favoriteFailed: 'Failed to favorite pin.',
     uploadPhotoFailed: 'Failed to upload photo.',
     loginRequired: 'You need to be logged in to perform this action.',
-    invalidCoordinates: 'Invalid coordinates.'
+    invalidCoordinates: 'Invalid coordinates.',
+    voteError: 'Error voting',
+    reportError: 'Error reporting review',
+    uploadError: 'Error processing images',
+    reviewError: 'Error publishing review'
   },
   ghostPin: {
     nearbyFound: 'Nearby locations found',

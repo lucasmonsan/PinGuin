@@ -7,7 +7,12 @@ export const ptBR: I18nDictionary = {
     closeDialog: 'Fechar janela',
     openMenu: 'Abrir menu',
     toggleTheme: 'Alternar tema',
-    selectLanguage: 'Selecionar idioma'
+    selectLanguage: 'Selecionar idioma',
+    processing: 'Processando',
+    addToFavorites: 'Adicionar aos favoritos',
+    removeFromFavorites: 'Remover dos favoritos',
+    helpful: 'Útil',
+    loadingResults: 'Carregando resultados'
   },
   splash: {
     appName: 'Monsan Map',
@@ -107,7 +112,11 @@ export const ptBR: I18nDictionary = {
     favoriteFailed: 'Erro ao favoritar pin.',
     uploadPhotoFailed: 'Erro ao enviar foto.',
     loginRequired: 'Você precisa estar logado para realizar esta ação.',
-    invalidCoordinates: 'Coordenadas inválidas.'
+    invalidCoordinates: 'Coordenadas inválidas.',
+    voteError: 'Erro ao votar',
+    reportError: 'Erro ao reportar avaliação',
+    uploadError: 'Erro ao processar imagens',
+    reviewError: 'Erro ao publicar avaliação'
   },
   ghostPin: {
     nearbyFound: 'Locais próximos encontrados',

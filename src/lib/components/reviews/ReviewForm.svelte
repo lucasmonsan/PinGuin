@@ -78,7 +78,7 @@
 
 			haptics.success();
 		} catch (error) {
-			toast.error('Erro ao processar imagens');
+			toast.error(i18n.t.errors.uploadError);
 		} finally {
 			uploading = false;
 			if (input) input.value = '';
@@ -147,7 +147,7 @@
 			if (error.message?.includes('já avaliou')) {
 				toast.error('Você já avaliou este local');
 			} else {
-				toast.error('Erro ao publicar avaliação');
+				toast.error(i18n.t.errors.reviewError);
 			}
 		} finally {
 			loading = false;

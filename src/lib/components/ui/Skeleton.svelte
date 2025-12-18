@@ -9,7 +9,7 @@
 	let { width = '100%', height = '1rem', circle = false, className = '' }: Props = $props();
 </script>
 
-<div class="skeleton {className}" class:circle style:width style:height role="status" aria-label="Carregando..."></div>
+<div class="skeleton {className}" class:circle style:width style:height role="status" aria-label={i18n.t.a11y.loading}></div>
 
 <style>
 	.skeleton {

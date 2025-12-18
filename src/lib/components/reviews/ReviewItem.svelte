@@ -37,7 +37,7 @@
 			isUpvoted = newState;
 			upvoteCount = newState ? upvoteCount + 1 : upvoteCount - 1;
 		} catch (error) {
-			toast.error('Erro ao votar');
+			toast.error(i18n.t.errors.voteError);
 		} finally {
 			upvoteLoading = false;
 		}
@@ -61,7 +61,7 @@
 			if (error.message?.includes('já reportou')) {
 				toast.info('Você já reportou esta avaliação');
 			} else {
-				toast.error('Erro ao reportar avaliação');
+				toast.error(i18n.t.errors.reportError);
 			}
 		}
 	}
