@@ -18,6 +18,7 @@
 	import GhostPinModal from '$lib/components/ghostPin/GhostPinModal.svelte';
 	import InstallPrompt from '$lib/components/pwa/InstallPrompt.svelte';
 	import PerformanceMonitor from '$lib/components/debug/PerformanceMonitor.svelte';
+	import OfflineBanner from '$lib/components/ui/OfflineBanner.svelte';
 	import { mapState } from '$lib/components/map/map.svelte';
 	import { bottomSheetState } from '$lib/stores/bottomSheet.svelte';
 	import { PinsService } from '$lib/services/pins.service';
@@ -278,6 +279,7 @@
 <GhostPinModal />
 
 <SkipLink />
+<OfflineBanner />
 
 {#if showOverlay}
 	<button class="overlay" onclick={handleOverlayClick} transition:fade aria-label="Fechar"></button>

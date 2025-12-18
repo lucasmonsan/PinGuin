@@ -46,6 +46,13 @@ export const ptBR: I18nDictionary = {
       clear: 'Limpar histórico'
     }
   },
+  offline: {
+    banner: 'Você está no modo offline.',
+    loginPrompt: 'Faça login',
+    savePrompt: 'para salvar seus dados permanentemente',
+    photosDisabled: 'Upload de fotos disponível apenas com login',
+    localBadge: 'Local'
+  },
   buttons: {
     clear: 'Limpar',
     search: 'Pesquisar',

@@ -46,6 +46,13 @@ export const enUS: I18nDictionary = {
       clear: 'Clear history'
     }
   },
+  offline: {
+    banner: 'You are in offline mode.',
+    loginPrompt: 'Log in',
+    savePrompt: 'to save your data permanently',
+    photosDisabled: 'Photo upload available only with login',
+    localBadge: 'Local'
+  },
   buttons: {
     clear: 'Clear',
     search: 'Search',
