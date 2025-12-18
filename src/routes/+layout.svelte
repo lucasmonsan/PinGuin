@@ -75,72 +75,97 @@
 			});
 		}
 
-		// Check if splash was already shown this session
-		const splashShown = sessionStorage.getItem('splashShown');
-		if (splashShown) {
-			showSplash = false;
-		} else {
-			sessionStorage.setItem('splashShown', 'true');
-			showSplash = true;
+		// Sempre mostrar splash ao carregar (removido sessionStorage)
+		showSplash = true;
 
-			const SPLASH_MIN_DURATION = 2000; // 2 segundos mínimo
-			const startTime = Date.now();
-			let splashClosed = false;
+		const SPLASH_MIN_DURATION = 2000; // 2 segundos mínimo
+		const startTime = Date.now();
+		let splashClosed = false;
+		let locationGranted = false;
 
-			// Fecha splash após no máximo 3.5 segundos para ler a mensagem
-			const maxSplashTimeout = setTimeout(() => {
-				if (!splashClosed) {
-					splashClosed = true;
-					showSplash = false;
-				}
-			}, 3500);
-
-			const closeSplash = async () => {
-				if (!splashClosed) {
-					splashClosed = true;
-					clearTimeout(maxSplashTimeout);
-
-					// Garantir tempo mínimo de 2s
-					const elapsed = Date.now() - startTime;
-					const remaining = SPLASH_MIN_DURATION - elapsed;
-
-					if (remaining > 0) {
-						await new Promise((resolve) => setTimeout(resolve, remaining));
-					}
-
-					// Pequeno delay para transição suave
-					setTimeout(() => {
-						showSplash = false;
-					}, 300);
-				}
-			};
-
-			if ('geolocation' in navigator) {
-				navigator.geolocation.getCurrentPosition(
-					(position) => {
-						const { latitude, longitude } = position.coords;
-						mapState.setCenter?.([latitude, longitude]);
-						closeSplash();
-					},
-					() => {
-						// Erro ou negação: centraliza em São Paulo
-						mapState.setCenter?.([-23.5505, -46.6333]);
-						closeSplash();
-					},
-					{
-						timeout: 2000,
-						enableHighAccuracy: false,
-						maximumAge: 60000
-					}
-				);
-			} else {
-				// Sem geolocalização: centraliza em São Paulo
-				mapState.setCenter?.([-23.5505, -46.6333]);
-				closeSplash();
+		// Fecha splash após no máximo 3.5 segundos para ler a mensagem
+		const maxSplashTimeout = setTimeout(() => {
+			if (!splashClosed) {
+				splashClosed = true;
+				showSplash = false;
 			}
+		}, 3500);
 
-			return () => clearTimeout(maxSplashTimeout);
+		const closeSplash = async () => {
+			if (!splashClosed) {
+				splashClosed = true;
+				clearTimeout(maxSplashTimeout);
+
+				// Garantir tempo mínimo de 2s
+				const elapsed = Date.now() - startTime;
+				const remaining = SPLASH_MIN_DURATION - elapsed;
+
+				if (remaining > 0) {
+					await new Promise((resolve) => setTimeout(resolve, remaining));
+				}
+
+				// Pequeno delay para transição suave
+				setTimeout(() => {
+					showSplash = false;
+				}, 300);
+			}
+		};
+
+		// Função para centralizar (só executa uma vez)
+		const centerOnUser = (latitude: number, longitude: number) => {
+			if (!locationGranted) {
+				locationGranted = true;
+				mapState.setCenter?.([latitude, longitude]);
+			}
+		};
+
+		if ('geolocation' in navigator) {
+			// Tentar obter localização com timeout curto
+			navigator.geolocation.getCurrentPosition(
+				(position) => {
+					const { latitude, longitude } = position.coords;
+					centerOnUser(latitude, longitude);
+					closeSplash();
+				},
+				() => {
+					// Timeout ou negação: centraliza em São Paulo
+					mapState.setCenter?.([-23.5505, -46.6333]);
+					closeSplash();
+				},
+				{
+					timeout: 2000,
+					enableHighAccuracy: false,
+					maximumAge: 60000
+				}
+			);
+
+			// Continuar "ouvindo" por permissão mesmo após timeout
+			// Se usuário demorar para aceitar, ainda centraliza quando aceitar
+			const watchId = navigator.geolocation.watchPosition(
+				(position) => {
+					const { latitude, longitude } = position.coords;
+					centerOnUser(latitude, longitude);
+				},
+				() => {
+					// Erro no watch, ignorar
+				},
+				{
+					enableHighAccuracy: false,
+					maximumAge: 10000
+				}
+			);
+
+			// Limpar watch após 30 segundos
+			setTimeout(() => {
+				navigator.geolocation.clearWatch(watchId);
+			}, 30000);
+		} else {
+			// Sem geolocalização: centraliza em São Paulo
+			mapState.setCenter?.([-23.5505, -46.6333]);
+			closeSplash();
 		}
+
+		return () => clearTimeout(maxSplashTimeout);
 	});
 
 	// Sincronizar query params com estado do BottomSheet
