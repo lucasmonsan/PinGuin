@@ -9,6 +9,7 @@ import { i18n } from '$lib/i18n/i18n.svelte';
 import { navigationService } from '$lib/services/navigation.service';
 import { ghostPinState } from '$lib/stores/ghostPin.svelte';
 import { haptics } from '$lib/utils/haptics';
+import { getRatingColor } from '$lib/utils/ratingColors';
 import '$lib/styles/pins.css';
 
 class MapState {
@@ -23,6 +24,11 @@ class MapState {
   selectedPinId = $state<string | null>(null);
   private markers = new Map<string, LeafletMarker>();
   private watchId: number | null = null;
+
+  // Persistent cache for pins (loaded once, cached forever)
+  private pinCache = new Map<string, PinWithCategory>();
+  private cachedBounds = new Set<string>();
+  private lastFetchTime = new Map<string, Date>();
 
   async setMap(mapInstance: LeafletMap | null, leafletLibrary: LeafletLibrary | null) {
     this.map = mapInstance;
@@ -223,7 +229,8 @@ class MapState {
   addPin(pin: PinWithCategory) {
     if (!this.map || !this.L || !this.clusterGroup) return;
 
-    const categoryColor = pin.category?.color || '#A29BFE';
+    // Use rating color instead of category color
+    const pinColor = getRatingColor(pin.average_rating);
     const categoryName = pin.category?.name || 'other';
 
     // Criar ícone SVG inline do Lucide
@@ -232,7 +239,7 @@ class MapState {
     const icon = this.L.divIcon({
       className: 'custom-pin-marker',
       html: `
-        <div class="pin-marker-content" style="background-color: ${categoryColor};">
+        <div class="pin-marker-content" style="background-color: ${pinColor};">
           ${svgIcon}
         </div>
       `,
@@ -250,6 +257,31 @@ class MapState {
 
     this.markers.set(pin.id, marker);
     this.clusterGroup.addLayer(marker);
+  }
+
+  private updatePinRating(pinId: string, newRating: number | null) {
+    const marker = this.markers.get(pinId);
+    if (!marker || !this.L) return;
+
+    const pin = this.pinCache.get(pinId);
+    if (!pin) return;
+
+    const pinColor = getRatingColor(newRating);
+    const categoryName = pin.category?.name || 'other';
+    const svgIcon = this.createCategoryIconSVG(categoryName);
+
+    const newIcon = this.L.divIcon({
+      className: 'custom-pin-marker',
+      html: `
+        <div class="pin-marker-content" style="background-color: ${pinColor};">
+          ${svgIcon}
+        </div>
+      `,
+      iconSize: [32, 32],
+      iconAnchor: [16, 32]
+    });
+
+    marker.setIcon(newIcon);
   }
 
   private createCategoryIconSVG(categoryName: string): string {
@@ -280,9 +312,23 @@ class MapState {
   }
 
   setPins(pins: PinWithCategory[]) {
-    this.pins = pins;
-    this.clearPins();
-    pins.forEach(pin => this.addPin(pin));
+    // Add pins to cache (only new ones)
+    pins.forEach(pin => {
+      if (!this.pinCache.has(pin.id)) {
+        this.pinCache.set(pin.id, pin);
+        this.addPin(pin);
+      } else {
+        // Update cached pin if rating changed
+        const cached = this.pinCache.get(pin.id);
+        if (cached && cached.average_rating !== pin.average_rating) {
+          this.pinCache.set(pin.id, pin);
+          this.updatePinRating(pin.id, pin.average_rating);
+        }
+      }
+    });
+
+    // Update pins array from cache
+    this.pins = Array.from(this.pinCache.values());
   }
 
   clearPins() {
@@ -290,6 +336,45 @@ class MapState {
       this.clusterGroup.clearLayers();
       this.markers.clear();
       this.selectedPinId = null;
+      this.pinCache.clear(); // Clear pinCache as well
+    }
+  }
+
+  /**
+   * Generate unique key for map bounds (for caching)
+   */
+  private getBoundsKey(bounds: L.LatLngBounds): string {
+    const s = bounds.getSouth().toFixed(3);
+    const n = bounds.getNorth().toFixed(3);
+    const w = bounds.getWest().toFixed(3);
+    const e = bounds.getEast().toFixed(3);
+    return `${s},${n},${w},${e}`;
+  }
+
+  /**
+   * Check if bounds have been loaded before
+   */
+  isBoundsCached(bounds: L.LatLngBounds): boolean {
+    return this.cachedBounds.has(this.getBoundsKey(bounds));
+  }
+
+  /**
+   * Mark bounds as cached
+   */
+  markBoundsCached(bounds: L.LatLngBounds) {
+    this.cachedBounds.add(this.getBoundsKey(bounds));
+    this.lastFetchTime.set(this.getBoundsKey(bounds), new Date());
+  }
+
+  /**
+   * Update pin rating after review submission (public method)
+   */
+  updatePinFromReview(pinId: string, newRating: number) {
+    const pin = this.pinCache.get(pinId);
+    if (pin) {
+      pin.average_rating = newRating;
+      this.pinCache.set(pinId, pin);
+      this.updatePinRating(pinId, newRating);
     }
   }
 

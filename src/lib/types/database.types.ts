@@ -47,6 +47,8 @@ export interface Database {
           is_public: boolean
           osm_id: number | null
           osm_type: string | null
+          average_rating: number
+          rating_count: number
           created_at: string
           updated_at: string
         }
