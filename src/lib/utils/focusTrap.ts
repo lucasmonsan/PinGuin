@@ -3,7 +3,11 @@
  * Usado em modais e overlays
  */
 
-export function createFocusTrap(element: HTMLElement) {
+export function createFocusTrap(element: HTMLElement | undefined) {
+	if (!element) {
+		return { destroy: () => { } };
+	}
+
 	const focusableElements = getFocusableElements(element);
 	const firstFocusable = focusableElements[0];
 	const lastFocusable = focusableElements[focusableElements.length - 1];
@@ -14,7 +18,7 @@ export function createFocusTrap(element: HTMLElement) {
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.key !== 'Tab') return;
 
-		const focusableElements = getFocusableElements(element);
+		const focusableElements = getFocusableElements(element!);
 		const first = focusableElements[0];
 		const last = focusableElements[focusableElements.length - 1];
 

@@ -114,8 +114,8 @@ export const ptBR: I18nDictionary = {
     nearbyFoundDesc: 'Encontramos {count} local(is) próximo(s). Deseja adicionar um novo ou selecionar um existente?',
     addNew: 'Adicionar novo local',
     addNewDesc: 'Nenhum local próximo encontrado. Deseja adicionar um novo marcador aqui?',
-    createNew: 'Criar novo local',
-    create: 'Criar local',
+    createNew: 'Criar uma review',
+    create: 'Criar review',
     loadingAddress: 'Carregando endereço...',
     selectExisting: 'Selecionar existente'
   },
@@ -127,6 +127,17 @@ export const ptBR: I18nDictionary = {
     pinFavorited: 'Pin favoritado!',
     pinUnfavorited: 'Pin desfavoritado!',
     photoUploaded: 'Foto enviada com sucesso!'
+  },
+  common: {
+    loading: 'Carregando...',
+    saving: 'Salvando...',
+    identifyingAddress: 'Identificando endereço...',
+    addressNotFound: 'Endereço não identificado'
+  },
+  pinCreation: {
+    title: 'Nova Review',
+    titlePlaceholder: 'Título da review *',
+    descPlaceholder: 'Descreva o local ou sua experiência...'
   },
   toast: {
     close: 'Fechar notificação',

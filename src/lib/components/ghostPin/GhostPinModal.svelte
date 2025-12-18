@@ -18,6 +18,8 @@
 	let modalElement: HTMLDivElement;
 
 	onMount(() => {
+		if (!modalElement) return;
+
 		const trap = createFocusTrap(modalElement);
 		const escapeHandler = handleEscapeKey(handleCancel);
 		return () => {
@@ -33,11 +35,11 @@
 			ghostPinState.clear();
 			return;
 		}
-		if (!authState.user) {
-			toast.error(i18n.t.errors.loginRequired);
-			ghostPinState.clear();
-			return;
-		}
+		// if (!authState.user) {
+		// 	toast.error(i18n.t.errors.loginRequired);
+		// 	ghostPinState.clear();
+		// 	return;
+		// }
 
 		// Passa coords via query params
 		const params = new URLSearchParams({
@@ -73,14 +75,7 @@
 {#if ghostPinState.showGhost}
 	<button class="overlay" onclick={handleCancel} transition:fade={{ duration: 200 }} aria-label="Fechar"></button>
 
-	<div 
-		bind:this={modalElement}
-		class="ghost-modal" 
-		transition:fly={{ y: 500, duration: 300 }}
-		role="dialog"
-		aria-modal="true"
-		aria-labelledby="ghost-pin-title"
-	>
+	<div bind:this={modalElement} class="ghost-modal" transition:fly={{ y: 500, duration: 300 }} role="dialog" aria-modal="true" aria-labelledby="ghost-pin-title">
 		{#if ghostPinState.nearbyPins.length > 0}
 			<!-- Aviso de pins próximos -->
 			<div class="warning-section">

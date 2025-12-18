@@ -22,7 +22,7 @@
 		--btn-color: var(--text-primary);
 		--btn-bg-hover: var(--surface-hover, #f5f5f5);
 		--btn-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-		
+
 		overflow: hidden;
 		display: flex;
 		align-items: center;
@@ -61,12 +61,10 @@
 
 		&.primary:hover:not(:disabled) {
 			background: var(--btn-bg-hover);
-			transform: translateY(-1px);
 			box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
 		}
 
 		&.primary:active:not(:disabled) {
-			transform: translateY(0);
 			box-shadow: 0 1px 4px rgba(99, 102, 241, 0.3);
 		}
 
@@ -80,7 +78,6 @@
 
 		&.secondary:hover:not(:disabled) {
 			background: var(--btn-bg-hover);
-			transform: translateY(-1px);
 			box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 		}
 
@@ -111,12 +108,8 @@
 
 		&.icon:hover:not(:disabled):not(.invisible) {
 			background: rgba(99, 102, 241, 0.1);
-			transform: scale(1.05);
-			animation: buttonPulse 0.3s ease;
-		}
 
-		&.icon:active:not(:disabled) {
-			transform: scale(0.95);
+			animation: buttonPulse 0.3s ease;
 		}
 
 		/* Ghost */
@@ -146,12 +139,10 @@
 		&[data-invisible='true']:hover:not(:disabled) {
 			background: transparent !important;
 			box-shadow: none !important;
-			transform: none !important;
 		}
 
 		/* Default hover */
 		&:not(.ghost):not(.icon):not(.primary):not(.secondary):not(.outline):hover:not(:disabled):not(.invisible) {
-			transform: translateY(-1px);
 			box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 			background: rgba(99, 102, 241, 0.05);
 		}
@@ -159,7 +150,6 @@
 		&:disabled {
 			opacity: 0.5;
 			cursor: not-allowed;
-			transform: none !important;
 		}
 	}
 

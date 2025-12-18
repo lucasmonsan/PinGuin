@@ -25,7 +25,7 @@
 	import Main from '$lib/components/layout/Main.svelte';
 
 	let { children, data } = $props();
-	let showSplash = $state(true);
+	let showSplash = $state(false);
 	let showPerfMonitor = $state(false);
 
 	// Expor globalmente para ser controlado pelo ProfileMenu
@@ -39,11 +39,7 @@
 	let seoConfig = $derived(() => {
 		const pinId = page.url.searchParams.get('pin');
 		if (pinId && bottomSheetState.pin) {
-			return getSEOForPin(
-				bottomSheetState.pin.name,
-				bottomSheetState.pin.description || undefined,
-				bottomSheetState.pin.photos?.[0] || undefined
-			);
+			return getSEOForPin(bottomSheetState.pin.name, bottomSheetState.pin.description || undefined, bottomSheetState.pin.photos?.[0] || undefined);
 		}
 		return defaultSEO;
 	});
@@ -71,7 +67,7 @@
 	onMount(() => {
 		// Inicializar i18n com detecção automática de idioma
 		i18n.init();
-		
+
 		// Register Service Worker
 		if ('serviceWorker' in navigator) {
 			navigator.serviceWorker.register('/sw.js').catch((error) => {
@@ -79,52 +75,59 @@
 			});
 		}
 
-		let splashClosed = false;
-		
-		// Fecha splash após no máximo 3.5 segundos para ler a mensagem
-		const maxSplashTimeout = setTimeout(() => {
-			if (!splashClosed) {
-				splashClosed = true;
-				showSplash = false;
-			}
-		}, 3500);
-		
-		const closeSplash = () => {
-			if (!splashClosed) {
-				splashClosed = true;
-				clearTimeout(maxSplashTimeout);
-				// Pequeno delay para transição suave
-				setTimeout(() => {
-					showSplash = false;
-				}, 300);
-			}
-		};
-		
-		if ('geolocation' in navigator) {
-			navigator.geolocation.getCurrentPosition(
-				(position) => {
-					const { latitude, longitude } = position.coords;
-					mapState.setCenter?.([latitude, longitude]);
-					closeSplash();
-				},
-				() => {
-					// Erro ou negação: centraliza no Brasil
-					mapState.setCenter?.([-14.235, -51.9253]);
-					closeSplash();
-				},
-				{ 
-					timeout: 2000, // Reduzido para 2s
-					enableHighAccuracy: false, // Mais rápido
-					maximumAge: 60000 // Aceita cache de até 1 minuto
-				}
-			);
+		// Check if splash was already shown this session
+		const splashShown = sessionStorage.getItem('splashShown');
+		if (splashShown) {
+			showSplash = false;
 		} else {
-			// Navegador não suporta geolocalização
-			mapState.setCenter?.([-14.235, -51.9253]);
-			closeSplash();
+			sessionStorage.setItem('splashShown', 'true');
+
+			let splashClosed = false;
+
+			// Fecha splash após no máximo 3.5 segundos para ler a mensagem
+			const maxSplashTimeout = setTimeout(() => {
+				if (!splashClosed) {
+					splashClosed = true;
+					showSplash = false;
+				}
+			}, 3500);
+
+			const closeSplash = () => {
+				if (!splashClosed) {
+					splashClosed = true;
+					clearTimeout(maxSplashTimeout);
+					// Pequeno delay para transição suave
+					setTimeout(() => {
+						showSplash = false;
+					}, 300);
+				}
+			};
+
+			if ('geolocation' in navigator) {
+				navigator.geolocation.getCurrentPosition(
+					(position) => {
+						const { latitude, longitude } = position.coords;
+						mapState.setCenter?.([latitude, longitude]);
+						closeSplash();
+					},
+					() => {
+						// Erro ou negação: centraliza no Brasil
+						mapState.setCenter?.([-14.235, -51.9253]);
+						closeSplash();
+					},
+					{
+						timeout: 2000,
+						enableHighAccuracy: false,
+						maximumAge: 60000
+					}
+				);
+			} else {
+				mapState.setCenter?.([-14.235, -51.9253]);
+				closeSplash();
+			}
+
+			return () => clearTimeout(maxSplashTimeout);
 		}
-		
-		return () => clearTimeout(maxSplashTimeout);
 	});
 
 	// Sincronizar query params com estado do BottomSheet
@@ -132,10 +135,10 @@
 		const pinId = page.url.searchParams.get('pin');
 		const expanded = page.url.searchParams.get('expanded') === 'true';
 		const showReview = page.url.searchParams.get('review') === 'true';
-		
+
 		if (pinId && pinId !== bottomSheetState.pin?.id) {
 			// Carregar pin e abrir BottomSheet
-			PinsService.getPinById(pinId, authState.user?.id).then(pin => {
+			PinsService.getPinById(pinId, authState.user?.id).then((pin) => {
 				if (pin) {
 					bottomSheetState.open(pin, { expanded, showReviewForm: showReview });
 					mapState.selectPin(pin.id);
@@ -152,7 +155,7 @@
 			// Apenas atualizar estado se já está aberto
 			bottomSheetState.expanded = expanded;
 			bottomSheetState.showReviewForm = showReview;
-			
+
 			// Garantir que o pin esteja selecionado no mapa (caso de reload)
 			if (mapState.selectedPinId !== pinId) {
 				mapState.selectPin(pinId);
@@ -166,9 +169,9 @@
 			// SvelteKit já gerencia automaticamente através do $effect acima
 			logger.debug('[Navigation] Browser navigation detected');
 		};
-		
+
 		window.addEventListener('popstate', handlePopState);
-		
+
 		return () => {
 			window.removeEventListener('popstate', handlePopState);
 		};
@@ -193,7 +196,7 @@
 	<meta name="apple-mobile-web-app-title" content="Monsan Map" />
 	<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
 	<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
-	
+
 	<!-- SEO Meta Tags -->
 	<title>{seoConfig().title}</title>
 	<meta name="title" content={seoConfig().title} />
@@ -201,7 +204,7 @@
 	{#if seoConfig().keywords}
 		<meta name="keywords" content={seoConfig().keywords?.join(', ')} />
 	{/if}
-	
+
 	<!-- Open Graph / Facebook -->
 	<meta property="og:type" content={seoConfig().type || 'website'} />
 	<meta property="og:url" content={page.url.href} />
@@ -212,7 +215,7 @@
 	{/if}
 	<meta property="og:site_name" content="Monsan Map" />
 	<meta property="og:locale" content="pt_BR" />
-	
+
 	<!-- Twitter -->
 	<meta property="twitter:card" content="summary_large_image" />
 	<meta property="twitter:url" content={page.url.href} />
@@ -221,7 +224,7 @@
 	{#if seoConfig().image}
 		<meta property="twitter:image" content={seoConfig().image} />
 	{/if}
-	
+
 	<!-- Additional SEO -->
 	<meta name="robots" content="index, follow" />
 	<meta name="googlebot" content="index, follow" />

@@ -114,8 +114,8 @@ export const enUS: I18nDictionary = {
     nearbyFoundDesc: 'We found {count} nearby location(s). Do you want to add a new one or select an existing one?',
     addNew: 'Add new location',
     addNewDesc: 'No nearby locations found. Do you want to add a new marker here?',
-    createNew: 'Create new location',
-    create: 'Create location',
+    createNew: 'Create a review',
+    create: 'Create review',
     loadingAddress: 'Loading address...',
     selectExisting: 'Select existing'
   },
@@ -127,6 +127,17 @@ export const enUS: I18nDictionary = {
     pinFavorited: 'Pin favorited!',
     pinUnfavorited: 'Pin unfavorited!',
     photoUploaded: 'Photo uploaded successfully!'
+  },
+  common: {
+    loading: 'Loading...',
+    saving: 'Saving...',
+    identifyingAddress: 'Identifying address...',
+    addressNotFound: 'Address not found'
+  },
+  pinCreation: {
+    title: 'New Review',
+    titlePlaceholder: 'Review title *',
+    descPlaceholder: 'Describe the place or your experience...'
   },
   toast: {
     close: 'Close notification',

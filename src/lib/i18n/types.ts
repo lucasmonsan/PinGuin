@@ -60,6 +60,19 @@ export interface I18nDictionary {
     locationFound: string;
     [key: string]: string;
   };
+  common: {
+    loading: string;
+    saving: string;
+    identifyingAddress: string;
+    addressNotFound: string;
+    [key: string]: string;
+  };
+  pinCreation?: {
+    title: string;
+    titlePlaceholder: string;
+    descPlaceholder: string;
+    [key: string]: string;
+  };
   toast: {
     close: string;
     [key: string]: string;
